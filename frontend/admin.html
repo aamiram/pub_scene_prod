@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PUB SCENE | Owner</title>
+  <link rel="icon" href="assets/images/logo.png?v=2" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <style>
+    :root { color-scheme: dark; }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      font-family: 'Plus Jakarta Sans', sans-serif;
+      background: #07070b;
+      color: #e8e8f0;
+    }
+    header, main { width: min(980px, calc(100% - 24px)); margin: 0 auto; }
+    header { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 0; }
+    a { color: #00f0ff; }
+    h1, h2 { margin: 0; }
+    h1 { font-size: 1.35rem; }
+    button, input, select, textarea { font: inherit; font-size: 16px; }
+    button { min-height: 44px; border: 0; border-radius: 999px; padding: 10px 16px; cursor: pointer; }
+    .primary { background: linear-gradient(135deg, #00f0ff, #0099ff); color: #041018; font-weight: 800; }
+    .ghost { background: #17152b; color: white; border: 1px solid #2b274c; }
+    .danger { background: #3a1024; color: #ffb4d2; }
+    .tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
+    .tabs button[aria-selected="true"] { background: #00f0ff; color: #041018; }
+    .panel { display: none; }
+    .panel.active { display: block; }
+    .card, form.card {
+      background: #100e21;
+      border: 1px solid #2b274c;
+      border-radius: 18px;
+      padding: 16px;
+      margin: 12px 0;
+    }
+    label { display: block; font-size: 0.85rem; margin: 12px 0 6px; color: #c9c9da; }
+    input, select, textarea {
+      width: 100%;
+      background: #18152e;
+      color: white;
+      border: 1px solid #3a3560;
+      border-radius: 12px;
+      padding: 12px;
+    }
+    .row { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    @media (min-width: 720px) {
+      .row.two { grid-template-columns: 1fr 1fr; }
+    }
+    .flyer-list { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    @media (min-width: 800px) {
+      .flyer-list { grid-template-columns: 1fr 1fr; }
+    }
+    .flyer {
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      gap: 12px;
+      align-items: start;
+    }
+    .flyer img { width: 92px; height: auto; border-radius: 8px; background: black; }
+    .muted { color: #a3a3b8; font-size: 0.9rem; }
+    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
+    .preview { width: min(220px, 100%); border-radius: 12px; margin-top: 8px; }
+    .login-wrap { min-height: 100vh; display: grid; place-items: center; padding: 16px; }
+    .login-wrap form { width: min(420px, 100%); }
+    .error { color: #ff8ab5; min-height: 1.2em; }
+    table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
+    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #2b274c; vertical-align: top; }
+    .table-wrap { overflow-x: auto; }
+    [hidden] { display: none !important; }
+  </style>
+</head>
+<body>
+  <div id="loginView" class="login-wrap">
+    <form id="loginForm" class="card">
+      <h1>Owner login</h1>
+      <p class="muted">Add flyers and set couple and stag ticket prices.</p>
+      <label for="username">Username</label>
+      <input id="username" name="username" autocomplete="username" required />
+      <label for="password">Password</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" required />
+      <p id="loginError" class="error"></p>
+      <button class="primary" type="submit">Log in</button>
+    </form>
+  </div>
+
+  <div id="appView" hidden>
+    <header>
+      <div>
+        <h1 class="flex items-center gap-2"><img src="assets/images/logo.png?v=2" alt="" class="h-10 w-10 rounded-full object-cover" /> Owner panel</h1>
+        <a href="index.html">View website</a>
+      </div>
+      <button id="logoutBtn" class="ghost" type="button">Log out</button>
+    </header>
+    <main>
+      <div class="tabs" role="tablist">
+        <button type="button" class="ghost" data-tab="flyers" aria-selected="true">Flyers</button>
+        <button type="button" class="ghost" data-tab="editor" aria-selected="false">Add flyer</button>
+        <button type="button" class="ghost" data-tab="bookings" aria-selected="false">Bookings</button>
+        <button type="button" class="ghost" data-tab="messages" aria-selected="false">Messages</button>
+      </div>
+
+      <section id="flyers" class="panel active"></section>
+
+      <section id="editor" class="panel">
+        <form id="eventForm" class="card">
+          <h2 id="formTitle">Add a flyer</h2>
+          <input type="hidden" id="eventId" />
+          <label for="flyerFile">Original flyer photo</label>
+          <input id="flyerFile" type="file" accept="image/jpeg,image/png,image/webp" />
+          <img id="flyerPreview" class="preview" alt="" hidden />
+          <label for="eventName">Event name</label>
+          <input id="eventName" required placeholder="City Showdown ft. Shubz" />
+          <div class="row two">
+            <div>
+              <label for="eventDate">Date and time</label>
+              <input id="eventDate" required placeholder="Sat, 12 Sep • 8:00 PM" />
+            </div>
+            <div>
+              <label for="eventVenue">Venue</label>
+              <input id="eventVenue" required placeholder="Raasta, Nagpur" />
+            </div>
+          </div>
+          <div class="row two">
+            <div>
+              <label for="eventArea">Area</label>
+              <select id="eventArea">
+                <option value="raasta">Raasta</option>
+                <option value="dharampeth">Dharampeth</option>
+                <option value="civil_lines">Civil Lines</option>
+                <option value="wardha_rd">Wardha Road</option>
+                <option value="sadar">Sadar</option>
+              </select>
+            </div>
+            <div>
+              <label for="eventCategory">Category</label>
+              <select id="eventCategory">
+                <option value="club_nights">Club nights</option>
+                <option value="concerts">Concerts</option>
+                <option value="comedy">Comedy</option>
+                <option value="jamming">Jamming</option>
+              </select>
+            </div>
+          </div>
+          <div class="row two">
+            <div>
+              <label for="couplePrice">Couple ticket price (₹)</label>
+              <input id="couplePrice" type="number" min="0" step="1" value="0" required />
+            </div>
+            <div>
+              <label for="stagPrice">Stag ticket price (₹)</label>
+              <input id="stagPrice" type="number" min="0" step="1" value="0" required />
+            </div>
+          </div>
+          <label for="offerText">Short line on the card</label>
+          <input id="offerText" placeholder="Bollywood and commercial night" />
+          <label for="badge">Artist label</label>
+          <input id="badge" placeholder="SHUBZ" />
+          <p id="formError" class="error"></p>
+          <div class="actions">
+            <button class="primary" type="submit">Save flyer</button>
+            <button class="ghost" id="cancelEdit" type="button">Clear</button>
+          </div>
+        </form>
+      </section>
+
+      <section id="bookings" class="panel"></section>
+      <section id="messages" class="panel"></section>
+    </main>
+  </div>
+  <script src="assets/js/admin.js"></script>
+</body>
+</html>
