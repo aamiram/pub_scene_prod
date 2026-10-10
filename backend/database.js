@@ -55,7 +55,8 @@ db.exec(`
     offer_text TEXT,
     image TEXT,
     badge TEXT,
-    couple_price REAL DEFAULT 0
+    couple_price REAL DEFAULT 0,
+    last_booking_date TEXT
   );
 
   CREATE TABLE IF NOT EXISTS venues (
@@ -101,6 +102,9 @@ if (!userColumns.includes('age')) db.exec('ALTER TABLE users ADD COLUMN age INTE
 const eventColumns = db.prepare('PRAGMA table_info(events)').all().map((column) => column.name);
 if (!eventColumns.includes('couple_price')) {
   db.exec('ALTER TABLE events ADD COLUMN couple_price REAL DEFAULT 0');
+}
+if (!eventColumns.includes('last_booking_date')) {
+  db.exec('ALTER TABLE events ADD COLUMN last_booking_date TEXT');
 }
 
 db.exec(`
@@ -165,7 +169,8 @@ function mapEvent(row) {
     couplePrice: row.couple_price == null ? 0 : row.couple_price,
     offerText: row.offer_text,
     image: row.image,
-    badge: row.badge
+    badge: row.badge,
+    lastBookingDate: row.last_booking_date
   };
 }
 
@@ -307,10 +312,10 @@ function saveEvent(event) {
   db.prepare(`
     INSERT INTO events (
       id, name, venue_name, area_id, area_name, category, event_date,
-      price, cover_price, couple_price, offer_text, image, badge
+      price, cover_price, couple_price, offer_text, image, badge, last_booking_date
     ) VALUES (
       @id, @name, @venueName, @areaId, @areaName, @category, @date,
-      @price, @coverPrice, @couplePrice, @offerText, @image, @badge
+      @price, @coverPrice, @couplePrice, @offerText, @image, @badge, @lastBookingDate
     )
     ON CONFLICT(id) DO UPDATE SET
       name = excluded.name,
@@ -324,7 +329,8 @@ function saveEvent(event) {
       couple_price = excluded.couple_price,
       offer_text = excluded.offer_text,
       image = excluded.image,
-      badge = excluded.badge
+      badge = excluded.badge,
+      last_booking_date = excluded.last_booking_date
   `).run({
     id: event.id,
     name: event.name,
@@ -338,7 +344,8 @@ function saveEvent(event) {
     couplePrice,
     offerText: event.offerText || '',
     image: event.image || '',
-    badge: event.badge || ''
+    badge: event.badge || '',
+    lastBookingDate: event.lastBookingDate || null
   });
   return getEventById(event.id);
 }

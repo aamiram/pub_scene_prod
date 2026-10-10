@@ -188,6 +188,13 @@ app.post('/api/create-pass-order', async (req, res) => {
       return res.status(404).json({ error: 'Event not found' });
     }
 
+    if (event.lastBookingDate) {
+      const today = new Date().toISOString().split('T')[0];
+      if (today > event.lastBookingDate) {
+        return res.status(400).json({ error: 'Booking is closed for this event' });
+      }
+    }
+
     const couplePasses = Math.max(0, parseInt(booking.couplePasses, 10) || 0);
     const stagPasses = Math.max(0, parseInt(booking.stagPasses, 10) || 0);
     if (couplePasses + stagPasses < 1) {
@@ -500,7 +507,8 @@ function upsertAdminEvent(body, forcedId, existing) {
     coverPrice: body.stagPrice,
     offerText: String(body.offerText || '').trim(),
     image,
-    badge: String(body.badge || '').trim()
+    badge: String(body.badge || '').trim(),
+    lastBookingDate: body.lastBookingDate ? String(body.lastBookingDate).trim() : null
   });
 }
 

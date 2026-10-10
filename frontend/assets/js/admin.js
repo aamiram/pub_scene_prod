@@ -130,6 +130,7 @@ function fillForm(event) {
   document.getElementById('couplePrice').value = Number(event.couplePrice || 0);
   document.getElementById('stagPrice').value = Number(event.coverPrice || 0);
   document.getElementById('offerText').value = event.offerText || '';
+  document.getElementById('lastBookingDate').value = event.lastBookingDate || '';
   document.getElementById('badge').value = event.badge || '';
   document.getElementById('formTitle').textContent = 'Edit flyer';
   flyerData = '';
@@ -212,6 +213,7 @@ document.getElementById('eventForm').addEventListener('submit', async (event) =>
     couplePrice: document.getElementById('couplePrice').value,
     stagPrice: document.getElementById('stagPrice').value,
     offerText: document.getElementById('offerText').value.trim(),
+    lastBookingDate: document.getElementById('lastBookingDate').value.trim(),
     badge: document.getElementById('badge').value.trim()
   };
   if (flyerData) payload.imageData = flyerData;

@@ -48,7 +48,10 @@ function renderEvents(items) {
     hero.alt = items[0].name || 'Event flyer';
   }
 
-  grid.innerHTML = items.map((event) => `
+  const today = new Date().toISOString().split('T')[0];
+  grid.innerHTML = items.map((event) => {
+    const isClosed = event.lastBookingDate && today > event.lastBookingDate;
+    return `
     <article class="bg-[#100e21] border border-[#2b274c] rounded-2xl overflow-hidden flex flex-col">
       <img src="${escapeHtml(event.image)}" alt="${escapeHtml(event.name)} flyer" class="w-full h-auto bg-black" />
       <div class="p-4 flex flex-col flex-1 gap-2">
@@ -57,12 +60,12 @@ function renderEvents(items) {
         <p class="text-sm text-gray-400">${escapeHtml(event.venueName)}</p>
         <p class="text-sm text-pink-400">${escapeHtml(event.offerText)}</p>
         <p class="text-sm text-gray-200">Couple ₹${Number(event.couplePrice || 0)} · Stag ₹${Number(event.coverPrice || 0)}</p>
-        <button type="button" class="book-event-btn btn-neon-primary mt-2 w-full min-h-11 py-3 rounded-full text-sm" data-event-id="${escapeHtml(event.id)}">
-          Book pass
+        <button type="button" class="${isClosed ? 'mt-2 w-full min-h-11 py-3 rounded-full text-sm bg-gray-700 text-gray-400 cursor-not-allowed font-bold' : 'book-event-btn btn-neon-primary mt-2 w-full min-h-11 py-3 rounded-full text-sm'}" ${isClosed ? 'disabled' : `data-event-id="${escapeHtml(event.id)}"`}>
+          ${isClosed ? 'Booking Closed' : 'Book pass'}
         </button>
       </div>
     </article>
-  `).join('');
+  `}).join('');
 }
 
 async function loadEvents() {
