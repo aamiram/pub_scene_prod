@@ -21,6 +21,10 @@ const {
   listAdminUsers,
   saveEvent,
   deleteEvent,
+  listVenues,
+  getVenueById,
+  saveVenue,
+  deleteVenue,
   listAdminBookings,
   listCollabLeads,
   createAdminSession,
@@ -499,6 +503,73 @@ function upsertAdminEvent(body, forcedId, existing) {
     badge: String(body.badge || '').trim()
   });
 }
+
+app.get('/api/venues', (req, res) => {
+  try {
+    const venues = listVenues();
+    res.json(venues);
+  } catch (err) {
+    console.error('List venues failed:', err);
+    res.status(500).json({ error: 'Failed to fetch venues' });
+  }
+});
+
+function upsertAdminVenue(body, venueId) {
+  const name = String(body.name || '').trim();
+  const location = String(body.location || '').trim();
+  if (!name || !location) throw new Error('Name and location are required');
+
+  let cover = body.coverImage || '';
+  if (body.coverImageData && body.coverImageData.startsWith('data:image')) {
+    cover = saveFlyerFile(body.coverImageData, venueId ? venueId + '-cov' : '');
+  }
+
+  let logo = body.logoImage || '';
+  if (body.logoImageData && body.logoImageData.startsWith('data:image')) {
+    logo = saveFlyerFile(body.logoImageData, venueId ? venueId + '-logo' : '');
+  }
+
+  const id = venueId || ('ven-' + Date.now().toString(36));
+  saveVenue(id, name, location, cover, logo);
+  return getVenueById(id);
+}
+
+app.post('/api/admin/venues', requireAdmin, (req, res) => {
+  try {
+    const saved = upsertAdminVenue(req.body || {}, '');
+    res.status(201).json(saved);
+  } catch (err) {
+    console.error('Create venue failed:', err);
+    res.status(400).json({ error: err.message || 'Could not save venue' });
+  }
+});
+
+app.put('/api/admin/venues/:id', requireAdmin, (req, res) => {
+  try {
+    const existing = getVenueById(req.params.id);
+    if (!existing) return res.status(404).json({ error: 'Venue not found' });
+    
+    // Merge existing images if not provided
+    req.body.coverImage = req.body.coverImage || existing.cover_image;
+    req.body.logoImage = req.body.logoImage || existing.logo_image;
+
+    const saved = upsertAdminVenue(req.body, req.params.id);
+    res.json(saved);
+  } catch (err) {
+    console.error('Update venue failed:', err);
+    res.status(400).json({ error: err.message || 'Could not save venue' });
+  }
+});
+
+app.delete('/api/admin/venues/:id', requireAdmin, (req, res) => {
+  try {
+    deleteVenue(req.params.id);
+    res.json({ ok: true });
+  } catch (err) {
+    console.error('Delete venue failed:', err);
+    res.status(500).json({ error: 'Could not delete venue' });
+  }
+});
 
 app.get('/api/admin/users', requireAdmin, (_req, res) => {
   try {

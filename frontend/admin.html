@@ -98,6 +98,7 @@
       <div class="tabs" role="tablist">
         <button type="button" class="ghost" data-tab="flyers" aria-selected="true">Flyers</button>
         <button type="button" class="ghost" data-tab="editor" aria-selected="false">Add flyer</button>
+        <button type="button" class="ghost" data-tab="venues" aria-selected="false">Venues</button>
         <button type="button" class="ghost" data-tab="bookings" aria-selected="false">Bookings</button>
         <button type="button" class="ghost" data-tab="messages" aria-selected="false">Messages</button>
       </div>
@@ -164,6 +165,34 @@
             <button class="ghost" id="cancelEdit" type="button">Clear</button>
           </div>
         </form>
+      </section>
+
+      <section id="venues" class="panel">
+        <form id="venueForm" class="card">
+          <h2 id="venueFormTitle">Add a venue</h2>
+          <input type="hidden" id="venueId" />
+          
+          <label for="venueCoverFile">Cover Photo (Large)</label>
+          <input id="venueCoverFile" type="file" accept="image/jpeg,image/png,image/webp" />
+          <img id="venueCoverPreview" class="preview" alt="" hidden />
+          
+          <label for="venueLogoFile">Logo (Small)</label>
+          <input id="venueLogoFile" type="file" accept="image/jpeg,image/png,image/webp" />
+          <img id="venueLogoPreview" class="preview" alt="" hidden style="width:50px;height:50px;border-radius:50%;" />
+
+          <label for="venueNameInput">Venue Name</label>
+          <input id="venueNameInput" required placeholder="Dabo" />
+          
+          <label for="venueLocationInput">Full Address / Location</label>
+          <input id="venueLocationInput" required placeholder="6, New Manish Nagar, Somalwada, Wardha Road, Nagpur, Maharashtra 440025" />
+
+          <p id="venueFormError" class="error"></p>
+          <div class="actions">
+            <button class="primary" type="submit">Save venue</button>
+            <button class="ghost" id="cancelVenueEdit" type="button">Clear</button>
+          </div>
+        </form>
+        <div id="venuesList" class="flyer-list mt-4"></div>
       </section>
 
       <section id="bookings" class="panel"></section>

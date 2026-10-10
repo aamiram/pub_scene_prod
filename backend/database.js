@@ -58,6 +58,15 @@ db.exec(`
     couple_price REAL DEFAULT 0
   );
 
+  CREATE TABLE IF NOT EXISTS venues (
+    id TEXT PRIMARY KEY,
+    name TEXT NOT NULL,
+    location TEXT NOT NULL,
+    cover_image TEXT,
+    logo_image TEXT,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP
+  );
+
   CREATE TABLE IF NOT EXISTS organizers (
     id TEXT PRIMARY KEY,
     name TEXT NOT NULL,
@@ -388,8 +397,25 @@ function closeDatabase() {
   }
 }
 
+function listVenues() {
+  return db.prepare('SELECT * FROM venues ORDER BY created_at DESC').all();
+}
+function getVenueById(id) {
+  return db.prepare('SELECT * FROM venues WHERE id = ?').get(id);
+}
+function saveVenue(id, name, location, cover, logo) {
+  db.prepare('INSERT OR REPLACE INTO venues (id, name, location, cover_image, logo_image) VALUES (?, ?, ?, ?, ?)').run(id, name, location, cover, logo);
+}
+function deleteVenue(id) {
+  db.prepare('DELETE FROM venues WHERE id = ?').run(id);
+}
+
 module.exports = {
   db,
+  listVenues,
+  getVenueById,
+  saveVenue,
+  deleteVenue,
   closeDatabase,
   listEvents,
   getEventById,

@@ -248,4 +248,135 @@ document.getElementById('flyers').addEventListener('click', async (event) => {
 if (token()) {
   showApp();
   loadOverview().catch(() => showLogin());
+  loadVenues();
 }
+
+// --- VENUES LOGIC ---
+let venuesData = [];
+let venueCoverData = null;
+let venueLogoData = null;
+
+async function loadVenues() {
+  try {
+    const res = await api('/api/venues');
+    venuesData = res || [];
+    renderVenues();
+  } catch(err) {
+    console.error('Failed to load venues', err);
+  }
+}
+
+function renderVenues() {
+  const container = document.getElementById('venuesList');
+  if (!venuesData.length) {
+    container.innerHTML = '<p class="muted">No venues yet.</p>';
+    return;
+  }
+  container.innerHTML = venuesData.map(v => `
+    <div class="card" style="display:flex;gap:12px;align-items:center;">
+      <img src="${v.cover_image || 'assets/images/logo.png'}" style="width:100px;height:60px;object-fit:cover;border-radius:8px;"/>
+      <div style="flex:1">
+        <h4 style="margin:0;font-size:14px;color:white;">${v.name}</h4>
+        <p class="muted" style="margin:4px 0 0;font-size:11px;">${v.location}</p>
+      </div>
+      <div>
+        <button type="button" class="ghost" style="padding:6px 12px;min-height:unset;font-size:12px;" data-edit-venue="${v.id}">Edit</button>
+        <button type="button" class="danger" style="padding:6px 12px;min-height:unset;font-size:12px;" data-remove-venue="${v.id}">Delete</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function clearVenueForm() {
+  document.getElementById('venueForm').reset();
+  document.getElementById('venueId').value = '';
+  document.getElementById('venueCoverPreview').hidden = true;
+  document.getElementById('venueLogoPreview').hidden = true;
+  document.getElementById('venueFormTitle').textContent = 'Add a venue';
+  venueCoverData = null;
+  venueLogoData = null;
+}
+
+document.getElementById('cancelVenueEdit').addEventListener('click', clearVenueForm);
+
+function readVenueFile(file, isLogo) {
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (e) => {
+    if (isLogo) {
+      venueLogoData = e.target.result;
+      const preview = document.getElementById('venueLogoPreview');
+      preview.src = e.target.result;
+      preview.hidden = false;
+    } else {
+      venueCoverData = e.target.result;
+      const preview = document.getElementById('venueCoverPreview');
+      preview.src = e.target.result;
+      preview.hidden = false;
+    }
+  };
+  reader.readAsDataURL(file);
+}
+
+document.getElementById('venueCoverFile').addEventListener('change', (e) => readVenueFile(e.target.files[0], false));
+document.getElementById('venueLogoFile').addEventListener('change', (e) => readVenueFile(e.target.files[0], true));
+
+document.getElementById('venueForm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  const id = document.getElementById('venueId').value;
+  const payload = {
+    name: document.getElementById('venueNameInput').value.trim(),
+    location: document.getElementById('venueLocationInput').value.trim(),
+  };
+  if (venueCoverData) payload.coverImageData = venueCoverData;
+  if (venueLogoData) payload.logoImageData = venueLogoData;
+
+  try {
+    if (id) await api('/api/admin/venues/' + encodeURIComponent(id), { method: 'PUT', body: JSON.stringify(payload) });
+    else await api('/api/admin/venues', { method: 'POST', body: JSON.stringify(payload) });
+    clearVenueForm();
+    await loadVenues();
+  } catch (err) {
+    document.getElementById('venueFormError').textContent = err.message;
+  }
+});
+
+document.getElementById('venuesList').addEventListener('click', async (e) => {
+  const editId = e.target.closest('[data-edit-venue]')?.dataset.editVenue;
+  const removeId = e.target.closest('[data-remove-venue]')?.dataset.removeVenue;
+  
+  if (editId) {
+    const v = venuesData.find(x => x.id === editId);
+    if (!v) return;
+    document.getElementById('venueFormTitle').textContent = 'Edit venue';
+    document.getElementById('venueId').value = v.id;
+    document.getElementById('venueNameInput').value = v.name;
+    document.getElementById('venueLocationInput').value = v.location;
+    
+    if (v.cover_image) {
+      document.getElementById('venueCoverPreview').src = v.cover_image;
+      document.getElementById('venueCoverPreview').hidden = false;
+    } else {
+      document.getElementById('venueCoverPreview').hidden = true;
+    }
+    
+    if (v.logo_image) {
+      document.getElementById('venueLogoPreview').src = v.logo_image;
+      document.getElementById('venueLogoPreview').hidden = false;
+    } else {
+      document.getElementById('venueLogoPreview').hidden = true;
+    }
+    
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  if (removeId) {
+    if (!confirm('Are you sure you want to delete this venue?')) return;
+    try {
+      await api('/api/admin/venues/' + encodeURIComponent(removeId), { method: 'DELETE' });
+      await loadVenues();
+    } catch(err) {
+      alert(err.message);
+    }
+  }
+});

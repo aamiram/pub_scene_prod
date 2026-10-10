@@ -165,61 +165,15 @@
       <div id="eventsGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5"></div>
     </section>
 
-    <!-- 5. TOP ORGANIZERS & VENUES -->
-    <section id="venues" class="max-w-7xl mx-auto px-4 lg:px-8 py-8">
-      <div class="flex items-center justify-between mb-4">
-        <h2 class="text-lg md:text-xl font-bold text-white">Top organizers in Nagpur</h2>
-        <a href="#venues" id="seeAllVenues" class="text-xs text-[#00f0ff] font-semibold hover:underline">See all →</a>
+    <!-- 5. TOP VENUES -->
+    <section id="venues" class="max-w-7xl mx-auto px-4 lg:px-8 py-10">
+      <div class="mb-6">
+        <h2 class="text-xl md:text-2xl font-bold text-white">7 venues in <span class="text-[#00f0ff]">Nagpur</span></h2>
+        <p class="text-xs md:text-sm text-gray-400 mt-1 max-w-3xl">From rooftop bars to warehouse clubs, every venue listed here hosts real, bookable events in Nagpur. Browse by type and capacity, check what's coming up, and follow a venue to hear about its next event first.</p>
       </div>
 
-      <div class="grid grid-cols-1 sm:grid-cols-3 gap-4">
-        <div class="bg-[#100e21] border border-[#2b274c] rounded-xl p-4 flex flex-col justify-between">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-[#1e1b38] border border-[#00f0ff]/40 flex items-center justify-center text-sm font-bold text-[#00f0ff]">
-              VIBE
-            </div>
-            <div>
-              <h4 class="text-xs font-bold text-white flex items-center gap-1">The Vibe Club <i class="fa-solid fa-circle-check text-[#00f0ff] text-[10px]"></i></h4>
-              <p class="text-[10px] text-gray-400">Dharampeth, Nagpur • ★ 5.0</p>
-            </div>
-          </div>
-          <p class="text-[11px] text-gray-400 mt-3">Curating exclusive underground techno sessions & rooftop electronic jams.</p>
-          <button type="button" data-organizer-id="org-1" class="follow-btn mt-4 w-full bg-[#17152e] text-gray-200 border border-[#2e2a52] py-1.5 rounded-lg text-xs font-semibold">
-            + Follow
-          </button>
-        </div>
-
-        <div class="bg-[#100e21] border border-[#2b274c] rounded-xl p-4 flex flex-col justify-between">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-[#1e1b38] border border-[#ff007f]/40 flex items-center justify-center text-sm font-bold text-[#ff007f]">
-              CGC
-            </div>
-            <div>
-              <h4 class="text-xs font-bold text-white flex items-center gap-1">Common Ground Club <i class="fa-solid fa-circle-check text-[#ff007f] text-[10px]"></i></h4>
-              <p class="text-[10px] text-gray-400">Civil Lines, Nagpur • ★ 4.9</p>
-            </div>
-          </div>
-          <p class="text-[11px] text-gray-400 mt-3">A space for music, dance, community jams, and weekend nightlife vibes.</p>
-          <button type="button" data-organizer-id="org-2" class="follow-btn mt-4 w-full bg-[#17152e] text-gray-200 border border-[#2e2a52] py-1.5 rounded-lg text-xs font-semibold">
-            + Follow
-          </button>
-        </div>
-
-        <div class="bg-[#100e21] border border-[#2b274c] rounded-xl p-4 flex flex-col justify-between">
-          <div class="flex items-center gap-3">
-            <div class="w-10 h-10 rounded-full bg-[#1e1b38] border border-purple-500/40 flex items-center justify-center text-sm font-bold text-purple-400">
-              909
-            </div>
-            <div>
-              <h4 class="text-xs font-bold text-white flex items-center gap-1">Nine O Nine Lounge <i class="fa-solid fa-circle-check text-[#00f0ff] text-[10px]"></i></h4>
-              <p class="text-[10px] text-gray-400">Wardha Road, Nagpur • ★ 4.8</p>
-            </div>
-          </div>
-          <p class="text-[11px] text-gray-400 mt-3">Nagpur’s high-energy lounge featuring Bollywood DJ nights & craft beer.</p>
-          <button type="button" data-organizer-id="org-3" class="follow-btn mt-4 w-full bg-[#17152e] text-gray-200 border border-[#2e2a52] py-1.5 rounded-lg text-xs font-semibold">
-            + Follow
-          </button>
-        </div>
+      <div id="venuesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <!-- venues will be loaded dynamically here -->
       </div>
     </section>
 

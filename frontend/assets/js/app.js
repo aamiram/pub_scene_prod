@@ -357,6 +357,42 @@ function closeOrganizeModal() {
   document.body.classList.remove('overflow-hidden');
 }
 
+async function loadVenues() {
+  try {
+    const res = await fetch(`${API_BASE}/api/venues`);
+    const venues = await res.json();
+    const grid = document.getElementById('venuesGrid');
+    if (!grid) return;
+    
+    if (!venues || !venues.length) {
+      grid.innerHTML = '<p class="text-gray-400">No venues added yet.</p>';
+      return;
+    }
+    
+    grid.innerHTML = venues.map(v => `
+      <div class="flex flex-col gap-2 cursor-pointer group">
+        <div class="relative w-full aspect-[2/1] rounded-xl overflow-hidden bg-[#1e1b38] border border-[#2b274c] group-hover:border-[#00f0ff] transition-colors">
+          <img src="${v.cover_image || 'assets/images/logo.png'}" alt="${v.name}" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" />
+          <div class="absolute top-3 left-3 w-8 h-8 rounded-full bg-black border border-[#2b274c] overflow-hidden">
+            <img src="${v.logo_image || 'assets/images/logo.png'}" class="w-full h-full object-cover" />
+          </div>
+        </div>
+        <div>
+          <h3 class="text-base font-bold text-white flex items-center gap-1">${v.name} <i class="fa-solid fa-circle-check text-green-400 text-xs"></i></h3>
+          <p class="text-[11px] text-gray-400 leading-relaxed mt-0.5">${v.location}</p>
+          <p class="text-xs font-bold text-green-400 mt-1">0 upcoming events</p>
+        </div>
+      </div>
+    `).join('');
+    
+    const countHeader = document.querySelector('#venues h2');
+    if (countHeader) countHeader.innerHTML = `${venues.length} venues in <span class="text-[#00f0ff]">Nagpur</span>`;
+  } catch (err) {
+    console.error('Failed to load venues:', err);
+  }
+}
+
 bindInterface();
 loadEvents();
+loadVenues();
 refreshFollowButtons();
