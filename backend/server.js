@@ -335,10 +335,15 @@ const AREAS = {
   dharampeth: 'Dharampeth',
   civil_lines: 'Civil Lines',
   wardha_rd: 'Wardha Road',
-  sadar: 'Sadar'
+  sadar: 'Sadar',
+  nagpur: 'Nagpur',
+  mumbai: 'Mumbai',
+  goa: 'Goa',
+  pune: 'Pune',
+  bengaluru: 'Bengaluru'
 };
 
-const CATEGORIES = new Set(['concerts', 'club_nights', 'comedy', 'jamming']);
+const CATEGORIES = new Set(['concerts', 'club_nights', 'comedy', 'jamming', 'open_mics', 'live_gigs', 'dj_sets', 'stand_up']);
 
 function adminToken(req) {
   const header = req.headers.authorization || '';
@@ -423,6 +428,16 @@ app.post('/api/admin/events', requireAdmin, (req, res) => {
     res.status(201).json(saved);
   } catch (err) {
     console.error('Create event failed:', err);
+    res.status(400).json({ error: err.message || 'Could not save the flyer' });
+  }
+});
+
+app.post('/api/public/events', (req, res) => {
+  try {
+    const saved = upsertAdminEvent(req.body || {}, '');
+    res.status(201).json(saved);
+  } catch (err) {
+    console.error('Create public event failed:', err);
     res.status(400).json({ error: err.message || 'Could not save the flyer' });
   }
 });

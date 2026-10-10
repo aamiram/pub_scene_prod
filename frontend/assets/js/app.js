@@ -290,6 +290,71 @@ function bindInterface() {
       submit.disabled = false;
     }
   });
+
+  document.getElementById('organizeModal')?.addEventListener('click', (event) => {
+    if (event.target.id === 'organizeModal') closeOrganizeModal();
+  });
+
+  document.getElementById('organizeForm')?.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const btn = document.getElementById('orgSubmitBtn');
+    const fileInput = document.getElementById('orgFlyerFile');
+    if (!fileInput.files || !fileInput.files[0]) return alert('Please select a flyer image');
+    
+    btn.disabled = true;
+    btn.textContent = 'Submitting...';
+    
+    try {
+      const reader = new FileReader();
+      reader.onload = async (e) => {
+        try {
+          const res = await fetch(`${API_BASE}/api/public/events`, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+              name: document.getElementById('orgEventName').value.trim(),
+              venueName: document.getElementById('orgVenue').options[document.getElementById('orgVenue').selectedIndex].text,
+              date: document.getElementById('orgLaunchTime').value.replace('T', ' ') + ' to ' + document.getElementById('orgEndingTime').value.replace('T', ' '),
+              category: document.getElementById('orgEventType').value,
+              areaId: document.getElementById('orgCity').value,
+              couplePrice: 0,
+              stagPrice: 0,
+              offerText: document.getElementById('orgEventType').options[document.getElementById('orgEventType').selectedIndex].text,
+              imageData: e.target.result
+            })
+          });
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok) throw new Error(data.error || 'Failed to submit event');
+          alert('Event submitted successfully and is now visible!');
+          closeOrganizeModal();
+          event.target.reset();
+          loadEvents(); 
+        } catch (err) {
+          console.error(err);
+          alert(err.message);
+        } finally {
+          btn.disabled = false;
+          btn.textContent = 'Submit Event';
+        }
+      };
+      reader.readAsDataURL(fileInput.files[0]);
+    } catch (err) {
+      console.error(err);
+      alert(err.message);
+      btn.disabled = false;
+      btn.textContent = 'Submit Event';
+    }
+  });
+}
+
+function openOrganizeModal() {
+  document.getElementById('organizeModal')?.classList.remove('hidden');
+  document.body.classList.add('overflow-hidden');
+}
+
+function closeOrganizeModal() {
+  document.getElementById('organizeModal')?.classList.add('hidden');
+  document.body.classList.remove('overflow-hidden');
 }
 
 bindInterface();

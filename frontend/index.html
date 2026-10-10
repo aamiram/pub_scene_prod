@@ -109,6 +109,7 @@
           <a href="#events" class="hidden sm:inline-block text-gray-400 hover:text-white">Events</a>
           <a href="#venues" class="hidden sm:inline-block text-gray-400 hover:text-white">Venues</a>
           <a href="#collab" class="hidden sm:inline-block text-gray-400 hover:text-white">Join us</a>
+          <a href="javascript:void(0)" onclick="openOrganizeModal()" class="hidden sm:inline-block text-gray-400 hover:text-white">Collaborator</a>
 
           <button type="button" id="loginBookBtn" class="tap btn-neon-primary px-4 py-2 rounded-full text-xs">
             Book a pass
@@ -389,6 +390,85 @@
         <h4 class="text-base font-bold text-white">Request received</h4>
         <p class="text-xs text-gray-300 mt-2">We will reach out on the number you shared.</p>
       </div>
+    </div>
+  </div>
+
+  <!-- ORGANIZE EVENT MODAL -->
+  <div id="organizeModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
+    <div class="bg-[#110f22] border border-cyan-500/40 rounded-2xl max-w-md w-full p-6 relative max-h-[90vh] overflow-y-auto">
+      <button type="button" onclick="closeOrganizeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-lg">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+      <form id="organizeForm" class="space-y-3">
+        <h3 class="text-lg font-bold text-white mb-4">Organize an Event</h3>
+        
+        <div>
+          <label class="text-xs text-gray-300 block mb-1">Event Name</label>
+          <input type="text" id="orgEventName" placeholder="e.g. Neon Nights" required
+                 class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-[#00f0ff]" />
+        </div>
+        
+        <div>
+          <label class="text-xs text-gray-300 block mb-1">City</label>
+          <select id="orgCity" required
+                  class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-[#00f0ff]">
+            <option value="nagpur">Nagpur</option>
+            <option value="mumbai">Mumbai</option>
+            <option value="goa">Goa</option>
+            <option value="pune">Pune</option>
+            <option value="bengaluru">Bengaluru</option>
+          </select>
+        </div>
+        
+        <div>
+          <label class="text-xs text-gray-300 block mb-1">Venue</label>
+          <select id="orgVenue" required
+                  class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-[#00f0ff]">
+            <option value="Dabo">Dabo</option>
+            <option value="Agent Jacks">Agent Jacks</option>
+            <option value="Suaa Nagpur">Suaa Nagpur</option>
+            <option value="Ice Cube Lounge">Ice Cube Lounge</option>
+            <option value="Romeo Lane">Romeo Lane</option>
+            <option value="Raasta">Raasta</option>
+            <option value="Warehouse Cafe">Warehouse Cafe</option>
+          </select>
+        </div>
+        
+        <div class="flex gap-3">
+          <div class="flex-1">
+            <label class="text-xs text-gray-300 block mb-1">Launch Time</label>
+            <input type="datetime-local" id="orgLaunchTime" required style="color-scheme: dark;"
+                   class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-[#00f0ff]" />
+          </div>
+          <div class="flex-1">
+            <label class="text-xs text-gray-300 block mb-1">Ending Time</label>
+            <input type="datetime-local" id="orgEndingTime" required style="color-scheme: dark;"
+                   class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-[#00f0ff]" />
+          </div>
+        </div>
+        
+        <div>
+          <label class="text-xs text-gray-300 block mb-1">Event Type</label>
+          <select id="orgEventType" required
+                  class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-[#00f0ff]">
+            <option value="jamming">Jamming</option>
+            <option value="open_mics">Open Mics</option>
+            <option value="live_gigs">Live Gigs</option>
+            <option value="dj_sets">DJ Sets</option>
+            <option value="stand_up">Stand-up</option>
+          </select>
+        </div>
+        
+        <div>
+          <label class="text-xs text-gray-300 block mb-1">Flyer Template</label>
+          <input type="file" id="orgFlyerFile" accept="image/*" required
+                 class="w-full text-xs text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[#00f0ff]/10 file:text-[#00f0ff] hover:file:bg-[#00f0ff]/20" />
+        </div>
+        
+        <button type="submit" id="orgSubmitBtn" class="w-full btn-neon-primary py-3 rounded-lg text-sm font-bold mt-2">
+          Submit Event
+        </button>
+      </form>
     </div>
   </div>
 
