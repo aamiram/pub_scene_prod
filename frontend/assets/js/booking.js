@@ -211,8 +211,9 @@ document.getElementById('confirmPassBtn')?.addEventListener('click', async () =>
     };
 
     const rzp = new Razorpay(options);
-    rzp.on('payment.failed', function () {
-      alert('Payment was not completed. Your pass is still pending.');
+    rzp.on('payment.failed', function (resp) {
+      const reason = resp?.error?.description || 'Payment was not completed or was cancelled';
+      alert(`${reason}. If any money was deducted, it will be refunded automatically by your bank within 5 to 7 working days. For help, contact support@pubscene.in.`);
       submitBtn.disabled = false;
       submitBtn.textContent = originalLabel;
     });
