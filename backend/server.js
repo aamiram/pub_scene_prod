@@ -527,17 +527,18 @@ function upsertAdminVenue(body, venueId) {
   const location = String(body.location || '').trim();
   if (!name || !location) throw new Error('Name and location are required');
 
+  const id = venueId || ('ven-' + Date.now().toString(36));
+
   let cover = body.coverImage || '';
   if (body.coverImageData && body.coverImageData.startsWith('data:image')) {
-    cover = saveFlyerFile(body.coverImageData, venueId ? venueId + '-cov' : '');
+    cover = saveFlyerFile(body.coverImageData, id + '-cov-' + Date.now().toString(36));
   }
 
   let logo = body.logoImage || '';
   if (body.logoImageData && body.logoImageData.startsWith('data:image')) {
-    logo = saveFlyerFile(body.logoImageData, venueId ? venueId + '-logo' : '');
+    logo = saveFlyerFile(body.logoImageData, id + '-logo-' + Date.now().toString(36));
   }
 
-  const id = venueId || ('ven-' + Date.now().toString(36));
   saveVenue(id, name, location, cover, logo);
   return getVenueById(id);
 }
@@ -650,11 +651,12 @@ function listenOn(port) {
 async function start() {
   const configured = Number(process.env.PORT) || 5000;
   const ports = [];
-  [80, configured].forEach((port) => {
-    if (Number.isInteger(port) && port > 0 && port < 65536 && !ports.includes(port)) {
-      ports.push(port);
-    }
-  });
+  if (process.getuid && process.getuid() === 0) {
+    ports.push(80);
+  }
+  if (!ports.includes(configured)) {
+    ports.push(configured);
+  }
 
   const servers = [];
   for (const port of ports) {

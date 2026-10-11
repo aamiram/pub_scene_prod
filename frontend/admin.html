@@ -68,6 +68,48 @@
     .error { color: #ff8ab5; min-height: 1.2em; }
     table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
     th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #2b274c; vertical-align: top; }
+    .venue-card {
+      background: #100e21;
+      border: 1px solid #2b274c;
+      border-radius: 18px;
+      overflow: hidden;
+      display: flex;
+      flex-direction: column;
+      transition: all 0.2s ease;
+    }
+    .venue-card:hover {
+      border-color: #00f0ff88;
+      box-shadow: 0 4px 20px rgba(0, 240, 255, 0.08);
+    }
+    .venue-card-media {
+      position: relative;
+      height: 130px;
+      background: #18152e;
+      overflow: hidden;
+    }
+    .venue-card-cover {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .venue-card-logo {
+      position: absolute;
+      bottom: 8px;
+      left: 12px;
+      width: 44px;
+      height: 44px;
+      border-radius: 10px;
+      border: 2px solid #100e21;
+      background: #07070b;
+      object-fit: cover;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+    }
+    .venue-card-body {
+      padding: 12px 14px;
+      display: flex;
+      flex-direction: column;
+      flex: 1;
+    }
     .table-wrap { overflow-x: auto; }
     [hidden] { display: none !important; }
   </style>
@@ -99,6 +141,7 @@
         <button type="button" class="ghost" data-tab="flyers" aria-selected="true">Flyers</button>
         <button type="button" class="ghost" data-tab="editor" aria-selected="false">Add flyer</button>
         <button type="button" class="ghost" data-tab="venues" aria-selected="false">Venues</button>
+        <button type="button" class="ghost" data-tab="venue-editor" aria-selected="false">Add venue</button>
         <button type="button" class="ghost" data-tab="bookings" aria-selected="false">Bookings</button>
         <button type="button" class="ghost" data-tab="messages" aria-selected="false">Messages</button>
       </div>
@@ -176,23 +219,35 @@
       </section>
 
       <section id="venues" class="panel">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
+          <div>
+            <h2 style="font-size:1.25rem; margin:0; color:#fff;">Nagpur Venues</h2>
+            <p class="muted" style="margin:4px 0 0; font-size:0.85rem;">Manage partner restaurants, clubs & lounges visible on the website.</p>
+          </div>
+          <button type="button" class="primary" id="openAddVenueBtn" style="font-size:14px; padding:8px 18px; min-height:40px;">+ Add New Venue</button>
+        </div>
+        <div id="venuesList" class="flyer-list"></div>
+      </section>
+
+      <section id="venue-editor" class="panel">
         <form id="venueForm" class="card">
           <h2 id="venueFormTitle">Add a venue</h2>
+          <p class="muted">Add or update a venue with cover ambiance photos and address details.</p>
           <input type="hidden" id="venueId" />
           
-          <label for="venueCoverFile">Cover Photo (Large)</label>
+          <label for="venueCoverFile">Cover Photo (Large Banner / Ambiance Photo)</label>
           <input id="venueCoverFile" type="file" accept="image/jpeg,image/png,image/webp" />
-          <img id="venueCoverPreview" class="preview" alt="" hidden />
+          <img id="venueCoverPreview" class="preview" alt="Venue Cover Preview" hidden style="max-height:160px; object-fit:cover; width:100%; border-radius:12px; margin-top:8px;" />
           
-          <label for="venueLogoFile">Logo (Small)</label>
+          <label for="venueLogoFile">Logo / Thumbnail Photo</label>
           <input id="venueLogoFile" type="file" accept="image/jpeg,image/png,image/webp" />
-          <img id="venueLogoPreview" class="preview" alt="" hidden style="width:50px;height:50px;border-radius:50%;" />
+          <img id="venueLogoPreview" class="preview" alt="Venue Logo Preview" hidden style="width:64px;height:64px;border-radius:12px;object-fit:cover;margin-top:8px;" />
 
           <label for="venueNameInput">Venue Name</label>
-          <input id="venueNameInput" required placeholder="Dabo" />
+          <input id="venueNameInput" required placeholder="e.g. Raasta, Nagpur or Agent Jacks" />
           
-          <label for="venueLocationInput">Full Address / Location</label>
-          <input id="venueLocationInput" required placeholder="6, New Manish Nagar, Somalwada, Wardha Road, Nagpur, Maharashtra 440025" />
+          <label for="venueLocationInput">Full Address / Location in Nagpur</label>
+          <input id="venueLocationInput" required placeholder="e.g. West High Court Road, Dharampeth, Nagpur, Maharashtra 440010" />
 
           <p id="venueFormError" class="error"></p>
           <div class="actions">
@@ -200,7 +255,6 @@
             <button class="ghost" id="cancelVenueEdit" type="button">Clear</button>
           </div>
         </form>
-        <div id="venuesList" class="flyer-list mt-4"></div>
       </section>
 
       <section id="bookings" class="panel"></section>

@@ -141,6 +141,19 @@ const insertOrganizer = db.prepare(`
   VALUES (?, ?, ?, ?, ?, ?)
 `);
 
+const seedVenues = [
+  ['ven-raasta', 'Raasta, Nagpur', 'VIP Road, Civil Lines, Nagpur, Maharashtra 440001', '/assets/images/logo.png', '/assets/images/logo.png'],
+  ['ven-agent-jacks', 'Agent Jacks', 'West High Court Road, Dharampeth, Nagpur, Maharashtra 440010', '/assets/images/logo.png', '/assets/images/logo.png'],
+  ['ven-vibe-club', 'The Vibe Club', 'Dharampeth, Nagpur, Maharashtra 440010', '/assets/images/logo.png', '/assets/images/logo.png'],
+  ['ven-nine-o-nine', 'Nine O Nine Lounge', 'Wardha Road, Somalwada, Nagpur, Maharashtra 440025', '/assets/images/logo.png', '/assets/images/logo.png'],
+  ['ven-dabo', 'Dabo Club & Kitchen', 'New Manish Nagar, Wardha Road, Nagpur, Maharashtra 440025', '/assets/images/logo.png', '/assets/images/logo.png']
+];
+
+const insertVenue = db.prepare(`
+  INSERT OR IGNORE INTO venues (id, name, location, cover_image, logo_image)
+  VALUES (?, ?, ?, ?, ?)
+`);
+
 try {
   db.transaction(() => {
     const migrated = db.prepare('SELECT value FROM app_meta WHERE key = ?').get('original_flyers_v1');
@@ -150,9 +163,13 @@ try {
       db.prepare('INSERT INTO app_meta (key, value) VALUES (?, ?)').run('original_flyers_v1', '1');
     }
     seedOrganizers.forEach((row) => insertOrganizer.run(...row));
+    const venueCount = db.prepare('SELECT COUNT(*) AS c FROM venues').get().c;
+    if (venueCount === 0) {
+      seedVenues.forEach((row) => insertVenue.run(...row));
+    }
   })();
 } catch (err) {
-  console.error('Event seed skipped:', err.message);
+  console.error('Seed skipped:', err.message);
 }
 
 function mapEvent(row) {
