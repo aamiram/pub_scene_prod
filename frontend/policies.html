@@ -3,80 +3,186 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-  <title>Pub Scene | Legal & Policies</title>
+  <title>Pub Scene | Business Details, Legal & Policies</title>
+  <link rel="icon" href="assets/images/logo.png?v=2" />
   <script src="https://cdn.tailwindcss.com"></script>
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet">
   <style>
-    @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800;900&display=swap');
-    body { font-family: 'Outfit', sans-serif; background-color: #041018; color: #ffffff; }
-    h1, h2, h3 { font-family: 'Outfit', sans-serif; }
-    .content-section p { color: #9ca3af; margin-bottom: 1rem; line-height: 1.6; }
-    .content-section ul { color: #9ca3af; margin-bottom: 1rem; padding-left: 1.5rem; list-style-type: disc; }
+    body { font-family: 'Plus Jakarta Sans', sans-serif; background-color: #07070b; color: #e2e8f0; }
+    .content-section p { color: #94a3b8; margin-bottom: 0.85rem; line-height: 1.65; font-size: 0.875rem; }
+    .content-section ul { color: #94a3b8; margin-bottom: 0.85rem; padding-left: 1.25rem; list-style-type: disc; font-size: 0.875rem; line-height: 1.65; }
+    .content-section li { margin-bottom: 0.4rem; }
   </style>
 </head>
 <body class="antialiased min-h-screen pb-20 pt-24 px-4 sm:px-8 max-w-4xl mx-auto">
   
-  <header class="fixed top-0 left-0 right-0 z-50 bg-[#041018]/90 backdrop-blur-md border-b border-[#2b274c]">
-    <div class="h-16 flex items-center px-4 max-w-4xl mx-auto">
-      <a href="/" class="text-white hover:text-[#00f0ff] transition-colors"><i class="fa-solid fa-arrow-left text-xl"></i></a>
-      <h1 class="ml-4 text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-[#ff007f] to-[#7928ca] tracking-tight">PUB SCENE POLICIES</h1>
+  <!-- Fixed Header -->
+  <header class="fixed top-0 left-0 right-0 z-50 bg-[#07070b]/90 backdrop-blur-md border-b border-[#2b274c]">
+    <div class="h-16 flex items-center justify-between px-4 max-w-4xl mx-auto">
+      <div class="flex items-center">
+        <a href="/" class="text-white hover:text-[#00f0ff] transition-colors p-2 -ml-2" title="Back to Home">
+          <i class="fa-solid fa-arrow-left text-lg"></i>
+        </a>
+        <div class="ml-3 flex items-center gap-2">
+          <img src="assets/images/logo.png" alt="PUB SCENE" class="w-7 h-7 object-contain" />
+          <span class="font-['Orbitron'] font-black text-sm tracking-wider text-white">PUB <span class="text-[#00f0ff]">SCENE</span></span>
+        </div>
+      </div>
+      <a href="/" class="text-xs text-[#00f0ff] border border-[#00f0ff]/30 bg-[#00f0ff]/10 hover:bg-[#00f0ff]/20 px-3 py-1.5 rounded-full font-semibold transition-all">
+        ← Back to Website
+      </a>
     </div>
   </header>
 
-  <div class="space-y-12">
-    <!-- Contact Us -->
-    <section id="contact" class="content-section bg-[#100e21] border border-[#2b274c] rounded-2xl p-6 md:p-8 shadow-xl">
-      <h2 class="text-2xl font-bold text-white mb-4"><i class="fa-solid fa-address-card text-[#00f0ff] mr-2"></i>Contact Us</h2>
-      <p>Pub Scene operates as a Venue Booking & Discovery Platform. If you have any inquiries regarding your table reservations or guestlist entry, please contact our support team:</p>
-      <div class="mt-4 bg-[#18152e] p-4 rounded-xl border border-[#3a3560]">
-        <p class="mb-2"><strong class="text-white">Business Name:</strong> Pub Scene</p>
-        <p class="mb-2"><strong class="text-white">Email:</strong> support@pubscene.in</p>
-        <p class="mb-2"><strong class="text-white">Phone:</strong> +91 8855882926</p>
-        <p class="mb-2"><strong class="text-white">Operating Hours:</strong> 10:00 AM to 7:00 PM (Monday - Saturday)</p>
-        <p><strong class="text-white">Registered Address:</strong> IT Park, Gayatri Nagar, Nagpur, Maharashtra 440022, India</p>
-      </div>
-    </section>
-
-    <!-- Refund Policy -->
-    <section id="refund-policy" class="content-section bg-[#100e21] border border-[#2b274c] rounded-2xl p-6 md:p-8 shadow-xl">
-      <h2 class="text-2xl font-bold text-white mb-4"><i class="fa-solid fa-money-bill-transfer text-[#ff007f] mr-2"></i>Cancellation & Refund Policy</h2>
-      <p>As a SaaS and venue reservation manager, we adhere to a strict cancellation policy to protect our partner venues' capacity planning:</p>
-      <ul>
-        <li><strong>Standard Non-Refundable Policy:</strong> Under normal circumstances, all confirmed guestlist access and table reservation payments are strictly non-refundable and non-transferable.</li>
-        <li><strong>Venue Initiated Cancellations:</strong> Full refund if a venue booking or table reservation is cancelled by the partner venue or platform due to operational issues, double-booking, or unforeseen closures.</li>
-        <li><strong>SLA Timeframe:</strong> Approved refunds will be processed back to the original payment source within 5 to 7 working days.</li>
-        <li><strong>How to Request:</strong> If you believe you are eligible for a refund due to a venue-side cancellation, please email your Reservation ID to support@pubscene.in within 24 hours of the reserved date.</li>
-      </ul>
-    </section>
-
-    <!-- Privacy Policy -->
-    <section id="privacy-policy" class="content-section bg-[#100e21] border border-[#2b274c] rounded-2xl p-6 md:p-8 shadow-xl">
-      <h2 class="text-2xl font-bold text-white mb-4"><i class="fa-solid fa-shield-halved text-green-400 mr-2"></i>Privacy Policy</h2>
-      <p>Pub Scene is dedicated to securing your personal information. Our privacy practices are outlined below:</p>
-      <ul>
-        <li><strong>Data Collection:</strong> We collect your Name, Phone Number, Email, and Payment Transaction IDs to verify your identity at the venue and manage your table reservations.</li>
-        <li><strong>Payment Details:</strong> We explicitly note that all card, banking, and sensitive payment details are handled securely by RBI-licensed payment gateways. These details are <strong>never</strong> captured, processed, or stored on our servers.</li>
-        <li><strong>Data Sharing:</strong> We operate under a strict non-sharing policy. We do not sell or lease your personal data to third-party advertisers. Your reservation name and contact info are only shared with the specific partner venue you booked for entry validation purposes.</li>
-        <li><strong>Cookie Usage & Retention:</strong> We use essential cookies to maintain user session state and improve platform performance. Your data is retained only as long as your account remains active or as required for legal accounting compliance.</li>
-      </ul>
-    </section>
-
-    <!-- Terms and Conditions -->
-    <section id="terms" class="content-section bg-[#100e21] border border-[#2b274c] rounded-2xl p-6 md:p-8 shadow-xl">
-      <h2 class="text-2xl font-bold text-white mb-4"><i class="fa-solid fa-file-contract text-yellow-400 mr-2"></i>Terms & Conditions</h2>
-      <p>By registering or using the Pub Scene Venue Discovery Platform, you agree to the following terms:</p>
-      <ul>
-        <li><strong>Service Definition:</strong> Pub Scene is a SaaS reservation platform connecting users with partner venues for table bookings and guestlist management. We do not independently organize or host nightlife events.</li>
-        <li><strong>Age Restrictions & Identification:</strong> Users must be of legal drinking age (18+ or 21+, varying by state laws) to reserve access to nightlife venues. Valid government-issued photo ID is mandatory at the door. Venues reserve the right to deny entry without refund if valid ID is not presented.</li>
-        <li><strong>Code of Conduct & Right of Admission:</strong> Venues reserve the right of admission. Booking a reservation does not guarantee entry if you violate the venue's dress code, arrive severely intoxicated, or engage in inappropriate behavior. No refunds will be issued under these circumstances.</li>
-        <li><strong>Limitation of Liability:</strong> Pub Scene assumes no liability for disputes regarding food quality, ambiance, lost property, or physical injuries occurring on the premises of partner venues. The platform's liability is strictly limited to the transaction amount processed for the table reservation/guestlist fee.</li>
-        <li><strong>Booking Confirmations:</strong> A reservation is only confirmed once payment is fully processed and a digital QR Reservation Code is generated. Users must present this code at the venue.</li>
-      </ul>
-    </section>
+  <!-- Quick Anchor Navigation Ribbon -->
+  <div class="mb-8 flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none text-xs">
+    <a href="#about-us" class="whitespace-nowrap px-3.5 py-1.5 rounded-full bg-[#121124] border border-[#2b274c] hover:border-[#00f0ff] text-gray-300 hover:text-white transition-colors"><i class="fa-solid fa-circle-info mr-1.5 text-[#00f0ff]"></i> About Us</a>
+    <a href="#contact" class="whitespace-nowrap px-3.5 py-1.5 rounded-full bg-[#121124] border border-[#2b274c] hover:border-[#00f0ff] text-gray-300 hover:text-white transition-colors"><i class="fa-solid fa-address-card mr-1.5 text-[#ff007f]"></i> Contact Us</a>
+    <a href="#terms" class="whitespace-nowrap px-3.5 py-1.5 rounded-full bg-[#121124] border border-[#2b274c] hover:border-[#00f0ff] text-gray-300 hover:text-white transition-colors"><i class="fa-solid fa-file-contract mr-1.5 text-yellow-400"></i> Terms & Conditions</a>
+    <a href="#privacy-policy" class="whitespace-nowrap px-3.5 py-1.5 rounded-full bg-[#121124] border border-[#2b274c] hover:border-[#00f0ff] text-gray-300 hover:text-white transition-colors"><i class="fa-solid fa-shield-halved mr-1.5 text-green-400"></i> Privacy Policy</a>
+    <a href="#refund-policy" class="whitespace-nowrap px-3.5 py-1.5 rounded-full bg-[#121124] border border-[#2b274c] hover:border-[#00f0ff] text-gray-300 hover:text-white transition-colors"><i class="fa-solid fa-money-bill-transfer mr-1.5 text-pink-400"></i> Cancellation & Refund</a>
+    <a href="#delivery-policy" class="whitespace-nowrap px-3.5 py-1.5 rounded-full bg-[#121124] border border-[#2b274c] hover:border-[#00f0ff] text-gray-300 hover:text-white transition-colors"><i class="fa-solid fa-truck-fast mr-1.5 text-purple-400"></i> Service Delivery</a>
+    <a href="#pricing" class="whitespace-nowrap px-3.5 py-1.5 rounded-full bg-[#121124] border border-[#2b274c] hover:border-[#00f0ff] text-gray-300 hover:text-white transition-colors"><i class="fa-solid fa-tags mr-1.5 text-cyan-400"></i> Pricing Policy</a>
   </div>
 
-  <footer class="mt-12 text-center text-gray-500 text-sm border-t border-[#2b274c] pt-6">
-    &copy; 2026 Pub Scene. All rights reserved.
+  <div class="space-y-10">
+
+    <!-- 1. ABOUT US -->
+    <section id="about-us" class="content-section bg-[#100e21] border border-[#2b274c] rounded-2xl p-6 md:p-8 shadow-xl">
+      <h2 class="text-xl md:text-2xl font-bold text-white mb-4 flex items-center gap-2">
+        <i class="fa-solid fa-circle-info text-[#00f0ff]"></i>
+        <span>About Pub Scene</span>
+      </h2>
+      <p>
+        <strong class="text-white">Pub Scene</strong> is Nagpur’s premier nightlife discovery and digital entry pass reservation platform. Our mission is to elevate the urban nightlife culture by offering instant visibility into who is performing, crowd dynamics, and the best venues in town before you step out.
+      </p>
+      <p>
+        <strong>What we do:</strong>
+      </p>
+      <ul>
+        <li><strong>Club & Lounge Discovery:</strong> Curating top verified nightlife venues across Nagpur (Dharampeth, Civil Lines, Sadar, Wardha Road, Hingna).</li>
+        <li><strong>Event Ticketing & Digital Passes:</strong> Offering friction-free, instantaneous digital entry passes (Couple Passes and Stag Entry) with secure scannable QR verification.</li>
+        <li><strong>Venue Partnerships:</strong> Empowering nightclub owners and event curators with real-time guestlist management, verified attendee tracking, and capacity control.</li>
+      </ul>
+      <p>
+        All transactions on Pub Scene are protected with state-of-the-art encryption and processed via RBI-licensed payment gateways.
+      </p>
+    </section>
+
+    <!-- 2. CONTACT US -->
+    <section id="contact" class="content-section bg-[#100e21] border border-[#2b274c] rounded-2xl p-6 md:p-8 shadow-xl">
+      <h2 class="text-xl md:text-2xl font-bold text-white mb-4 flex items-center gap-2">
+        <i class="fa-solid fa-address-card text-[#ff007f]"></i>
+        <span>Contact Us</span>
+      </h2>
+      <p>
+        We are here to help! For booking assistance, venue collaborations, or transaction queries, reach our support team:
+      </p>
+      <div class="mt-4 bg-[#18152e] p-5 rounded-xl border border-[#3a3560] space-y-2.5 text-xs sm:text-sm">
+        <p class="mb-0"><strong class="text-white">Business / Brand Name:</strong> Pub Scene</p>
+        <p class="mb-0"><strong class="text-white">Official Support Email:</strong> <a href="mailto:support@pubscene.in" class="text-[#00f0ff] hover:underline">support@pubscene.in</a></p>
+        <p class="mb-0"><strong class="text-white">Customer Support Helpline:</strong> <a href="tel:+918855882926" class="text-[#00f0ff] hover:underline">+91 8855882926</a></p>
+        <p class="mb-0"><strong class="text-white">Operating Hours:</strong> 10:00 AM – 7:00 PM IST (Monday through Saturday)</p>
+        <p class="mb-0"><strong class="text-white">Registered Office Address:</strong> IT Park, Gayatri Nagar, Nagpur, Maharashtra 440022, India</p>
+      </div>
+      <p class="text-xs text-gray-400 mt-3">
+        Queries submitted by email are typically resolved within 24 to 48 business hours.
+      </p>
+    </section>
+
+    <!-- 3. TERMS AND CONDITIONS -->
+    <section id="terms" class="content-section bg-[#100e21] border border-[#2b274c] rounded-2xl p-6 md:p-8 shadow-xl">
+      <h2 class="text-xl md:text-2xl font-bold text-white mb-4 flex items-center gap-2">
+        <i class="fa-solid fa-file-contract text-yellow-400"></i>
+        <span>Terms & Conditions</span>
+      </h2>
+      <p>By browsing, booking, or using the Pub Scene platform, you agree to comply with and be bound by the following terms:</p>
+      <ul>
+        <li><strong>Service Scope:</strong> Pub Scene operates as an online ticketing and digital reservation facilitator for partner nightclubs, lounges, and event curators. We do not independently own the venues or physical premises.</li>
+        <li><strong>Age Restrictions & Identification:</strong> All guests must be of legal drinking and entry age (18+ or 21+ depending on regional state excise regulations) to enter licensed premises. A valid original government-issued photo ID (Aadhaar, Driving License, Passport, or Voter ID) is mandatory at venue entry. Venues reserve the right to refuse entry without refund if valid ID is not provided.</li>
+        <li><strong>Right of Admission:</strong> Venues strictly reserve the right of admission. Purchasing an entry pass does not exempt attendees from adhering to the venue's dress code, conduct standards, and security screening. Patrons who arrive intoxicated or engage in disorderly conduct will be denied entry without refund.</li>
+        <li><strong>Digital Pass Validity:</strong> A digital entry pass is valid only for the specific event, venue, and date indicated on the pass. Duplicate or forwarded QR passes that have already been scanned will be flagged as invalid.</li>
+        <li><strong>Limitation of Liability:</strong> Pub Scene is not liable for personal disputes, loss of personal belongings, or property damages within partner venues. In all circumstances, our maximum financial liability is capped at the face value of the booking transaction fee.</li>
+      </ul>
+    </section>
+
+    <!-- 4. PRIVACY POLICY -->
+    <section id="privacy-policy" class="content-section bg-[#100e21] border border-[#2b274c] rounded-2xl p-6 md:p-8 shadow-xl">
+      <h2 class="text-xl md:text-2xl font-bold text-white mb-4 flex items-center gap-2">
+        <i class="fa-solid fa-shield-halved text-green-400"></i>
+        <span>Privacy Policy</span>
+      </h2>
+      <p>Your privacy and transactional security are paramount to us. Our data handling policies are outlined below:</p>
+      <ul>
+        <li><strong>Information We Collect:</strong> When you reserve passes, we collect your Full Name, Mobile Phone Number, Instagram handle (optional), Age, and transaction identifiers. This information is required strictly to issue valid digital passes and verify guest entry at the door.</li>
+        <li><strong>Zero Payment Card Data Storage:</strong> <strong class="text-white">We DO NOT capture, process, or store credit card numbers, debit card numbers, CVV, UPI PINs, or net banking passwords on our servers.</strong> All payments are processed through RBI-authorized, PCI-DSS Level 1 compliant payment gateways (Razorpay).</li>
+        <li><strong>Data Sharing Policy:</strong> We do not sell, rent, or trade your personal data to third parties. Customer details are shared only with the specific partner club or event organizer where the reservation was placed, strictly for door check-in validation.</li>
+        <li><strong>Security & Encryption:</strong> All data transmissions between your browser and our servers are encrypted using modern Transport Layer Security (TLS/HTTPS).</li>
+        <li><strong>Cookies & Session State:</strong> We use minimal essential cookies to maintain security session tokens and preserve browsing state. No third-party tracking or advertising cookies are utilized.</li>
+      </ul>
+    </section>
+
+    <!-- 5. CANCELLATION & REFUND POLICY -->
+    <section id="refund-policy" class="content-section bg-[#100e21] border border-[#2b274c] rounded-2xl p-6 md:p-8 shadow-xl">
+      <h2 class="text-xl md:text-2xl font-bold text-white mb-4 flex items-center gap-2">
+        <i class="fa-solid fa-money-bill-transfer text-pink-400"></i>
+        <span>Cancellation & Refund Policy</span>
+      </h2>
+      <p>Due to capacity constraints and partner venue reservation commitments, we enforce a transparent refund policy:</p>
+      <ul>
+        <li><strong>Standard Bookings:</strong> Confirmed event passes and guestlist entries are generally non-refundable and non-transferable once purchased, except in cases of event cancellation.</li>
+        <li><strong>Venue-Side Cancellations:</strong> If an event or club night is cancelled, postponed, or double-booked by the organizer or venue, attendees are entitled to a 100% full refund of the amount paid.</li>
+        <li><strong>Refund SLA & Timelines:</strong> Approved refunds are initiated immediately and credited back to the original payment method (Bank Account / UPI / Card) within <strong>5 to 7 working days</strong>, subject to the customer's bank processing cycles.</li>
+        <li><strong>How to Claim a Refund:</strong> In the event of an organizer-side cancellation, please email your Pass Code (#PUB-XXXXXX) and payment transaction ID to <a href="mailto:support@pubscene.in" class="text-[#00f0ff] underline">support@pubscene.in</a> within 24 hours of the scheduled event date.</li>
+      </ul>
+    </section>
+
+    <!-- 6. SERVICE DELIVERY POLICY (Shipping Policy) -->
+    <section id="delivery-policy" class="content-section bg-[#100e21] border border-[#2b274c] rounded-2xl p-6 md:p-8 shadow-xl">
+      <h2 class="text-xl md:text-2xl font-bold text-white mb-4 flex items-center gap-2">
+        <i class="fa-solid fa-truck-fast text-purple-400"></i>
+        <span>Shipping & Service Delivery Policy</span>
+      </h2>
+      <p>As Pub Scene provides electronic ticketing and nightlife digital access, our delivery terms are as follows:</p>
+      <ul>
+        <li><strong>Delivery Method:</strong> All bookings are fulfilled through <strong class="text-white">Digital Entry Passes</strong>. No physical merchandise or tickets are shipped via postal or courier mail.</li>
+        <li><strong>Delivery Timeline:</strong> Service delivery is <strong class="text-white">Instantaneous (within 60 seconds)</strong> upon confirmation of payment. A scannable digital QR pass and unique booking confirmation code are rendered directly on your screen upon payment completion.</li>
+        <li><strong>Backup Delivery:</strong> In addition to instant on-screen rendering, booking confirmation details are dispatched via SMS / WhatsApp notification to the mobile number provided during checkout.</li>
+        <li><strong>Shipping & Delivery Fees:</strong> Delivery is 100% electronic and free of charge. No shipping or handling fees are applicable.</li>
+        <li><strong>Non-Receipt Resolution:</strong> If your digital pass does not appear immediately after successful deduction of payment, please refresh your browser or contact <a href="mailto:support@pubscene.in" class="text-[#00f0ff] underline">support@pubscene.in</a> with your payment ID for instant pass retrieval.</li>
+      </ul>
+    </section>
+
+    <!-- 7. PRICING & FEE POLICY -->
+    <section id="pricing" class="content-section bg-[#100e21] border border-[#2b274c] rounded-2xl p-6 md:p-8 shadow-xl">
+      <h2 class="text-xl md:text-2xl font-bold text-white mb-4 flex items-center gap-2">
+        <i class="fa-solid fa-tags text-cyan-400"></i>
+        <span>Pricing & Fee Policy</span>
+      </h2>
+      <p>We maintain full transparency in our pricing structure:</p>
+      <ul>
+        <li><strong>Currency:</strong> All prices on Pub Scene are stated and processed exclusively in Indian National Rupees (INR / ₹).</li>
+        <li><strong>Display of Rates:</strong> Pass pricing for each category (Couple Pass, Stag Cover, VIP Access, Early Bird) is clearly specified on every event card and prominently summarized before you proceed to payment.</li>
+        <li><strong>Final Pricing:</strong> The amount displayed in the booking summary modal is the final payable amount inclusive of applicable platform charges and taxes. There are no surprise hidden checkout markups.</li>
+        <li><strong>Free Events:</strong> Events marked with ₹0 price are completely free of charge and require zero payment processing.</li>
+      </ul>
+    </section>
+
+  </div>
+
+  <!-- Footer -->
+  <footer class="mt-12 text-center text-gray-500 text-xs border-t border-[#2b274c] pt-6 space-y-2">
+    <p>&copy; 2026 PUB SCENE Nagpur. All rights reserved.</p>
+    <div class="flex flex-wrap justify-center gap-3 text-gray-400 text-[11px]">
+      <a href="#about-us" class="hover:text-[#00f0ff]">About Us</a> •
+      <a href="#contact" class="hover:text-[#00f0ff]">Contact Us</a> •
+      <a href="#terms" class="hover:text-[#00f0ff]">Terms</a> •
+      <a href="#privacy-policy" class="hover:text-[#00f0ff]">Privacy</a> •
+      <a href="#refund-policy" class="hover:text-[#00f0ff]">Refund Policy</a> •
+      <a href="#delivery-policy" class="hover:text-[#00f0ff]">Service Delivery</a>
+    </div>
   </footer>
+
 </body>
 </html>
