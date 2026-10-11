@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
   <title>PUB SCENE | Nagpur's #1 Nightlife Guide & Pass Booking</title>
   <link rel="icon" href="assets/images/logo.png?v=2" />
   
@@ -21,14 +21,26 @@
       --neon-pink: #ff007f;
       --bg-dark: #07070b;
     }
+    html {
+      scroll-behavior: smooth;
+      scroll-padding-top: 110px;
+    }
+    @media (max-width: 768px) {
+      html {
+        scroll-padding-top: 135px;
+      }
+    }
     body {
-
-      
       background-color: var(--bg-dark);
       font-family: 'Plus Jakarta Sans', sans-serif;
       color: #e2e8f0;
       overflow-x: hidden;
-      scroll-behavior: smooth;
+      padding-bottom: 76px;
+    }
+    @media (min-width: 768px) {
+      body {
+        padding-bottom: 0;
+      }
     }
     .bg-ambient-lights {
       position: fixed;
@@ -56,11 +68,27 @@
       transform: translateY(-1px);
     }
     .scrollbar-none::-webkit-scrollbar { display: none; }
+    .scrollbar-none {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+    }
     img { max-width: 100%; }
     input, select, textarea, button { font-size: 16px; }
-    .tap { min-height: 44px; }
+    .tap { min-height: 44px; touch-action: manipulation; }
+    #events, #venues, #collab {
+      scroll-margin-top: 120px;
+    }
     @media (max-width: 640px) {
-      #bookingModal > div, #collabModal > div { max-width: 100%; border-radius: 16px; }
+      #bookingModal > div, #collabModal > div, #organizeModal > div {
+        max-width: 100%;
+        border-radius: 20px 20px 0 0;
+        margin-top: auto;
+      }
+      #bookingModal, #collabModal, #organizeModal {
+        align-items: flex-end;
+        padding: 0;
+      }
     }
   </style>
 </head>
@@ -71,73 +99,148 @@
   <div class="relative z-10">
 
     <!-- 1. TOP NAVBAR -->
-    <header class="sticky top-0 z-50 bg-[#08080f]/90 backdrop-blur-md border-b border-[#1c1a2e]">
-      <div class="max-w-7xl mx-auto px-4 lg:px-8 py-3 flex flex-col gap-3 md:flex-row md:items-center md:justify-between">
+    <header class="sticky top-0 z-50 bg-[#08080f]/95 backdrop-blur-md border-b border-[#1c1a2e]">
+      <div class="max-w-7xl mx-auto px-4 lg:px-8 py-2.5">
         
-        <!-- Logo -->
-        <a href="#" class="flex items-center shrink-0" aria-label="PUB SCENE Nagpur">
-          <img src="assets/images/logo.png?v=2" alt="PUB SCENE" class="h-14 w-14 sm:h-16 sm:w-16 rounded-full object-cover" />
-        </a>
+        <!-- Main Bar Row -->
+        <div class="flex items-center justify-between gap-3">
+          
+          <!-- Logo & Brand Name -->
+          <a href="#" class="flex items-center gap-2.5 shrink-0" aria-label="PUB SCENE Nagpur">
+            <img src="assets/images/logo.png?v=2" alt="PUB SCENE" class="h-10 w-10 sm:h-12 sm:w-12 rounded-full object-cover border border-[#00f0ff]/40 shadow-[0_0_12px_rgba(0,240,255,0.3)]" />
+            <div class="flex flex-col">
+              <span class="font-extrabold tracking-wider text-sm sm:text-base text-white leading-none">PUB <span class="text-[#00f0ff]">SCENE</span></span>
+              <span class="text-[9px] text-[#ff007f] font-bold tracking-widest uppercase mt-0.5">NAGPUR</span>
+            </div>
+          </a>
 
-        <!-- Search Bar with Live Filter -->
-        <div class="flex flex-1 md:max-w-md md:mx-6 relative">
-          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-gray-500 text-xs"></i>
-          <input type="text" id="mainSearchInput" placeholder="Search events, artists, venues..." 
-                 class="w-full bg-[#100f1c] text-base text-gray-200 pl-9 pr-4 py-3 rounded-full border border-[#26243d] focus:outline-none focus:border-[#00f0ff] transition-all" />
-        </div>
+          <!-- Desktop Search Bar -->
+          <div class="hidden md:flex flex-1 max-w-md mx-6 relative">
+            <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-gray-500 text-xs"></i>
+            <input type="text" id="mainSearchInput" placeholder="Search events, artists, venues..." 
+                   class="w-full bg-[#100f1c] text-sm text-gray-200 pl-9 pr-4 py-2.5 rounded-full border border-[#26243d] focus:outline-none focus:border-[#00f0ff] transition-all" />
+          </div>
 
-        <!-- City Dropdown & Nav Links -->
-        <div class="flex flex-wrap items-center gap-2 sm:gap-4 text-xs font-semibold relative">
-          <div class="relative">
-            <button type="button" id="cityDropdownBtn" class="tap flex items-center gap-1.5 bg-[#121124] border border-[#2b274c] px-3 py-2 rounded-full hover:border-[#00f0ff]">
-              <i class="fa-solid fa-location-dot text-[#ff007f]"></i>
-              <span id="currentCityDisplay" class="text-gray-200">Nagpur (All)</span>
-              <i class="fa-solid fa-chevron-down text-[10px] text-gray-400"></i>
+          <!-- Right Actions -->
+          <div class="flex items-center gap-2 sm:gap-4 text-xs font-semibold relative">
+            
+            <!-- City Dropdown -->
+            <div class="relative">
+              <button type="button" id="cityDropdownBtn" class="tap flex items-center gap-1.5 bg-[#121124] border border-[#2b274c] px-3 py-1.5 sm:py-2 rounded-full hover:border-[#00f0ff] text-xs">
+                <i class="fa-solid fa-location-dot text-[#ff007f]"></i>
+                <span id="currentCityDisplay" class="text-gray-200">Nagpur (All)</span>
+                <i class="fa-solid fa-chevron-down text-[9px] text-gray-400"></i>
+              </button>
+
+              <!-- Dropdown Menu -->
+              <div id="cityDropdownMenu" class="hidden absolute top-full mt-2 right-0 w-44 bg-[#100e21] border border-[#2b274c] rounded-xl shadow-2xl py-1 z-50">
+                <button type="button" data-area="all" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-[#1f1b3b]">All Nagpur</button>
+                <button type="button" data-area="dharampeth" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-[#1f1b3b]">Dharampeth</button>
+                <button type="button" data-area="civil_lines" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-[#1f1b3b]">Civil Lines</button>
+                <button type="button" data-area="wardha_rd" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-[#1f1b3b]">Wardha Road</button>
+                <button type="button" data-area="sadar" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-[#1f1b3b]">Sadar</button>
+                <button type="button" data-area="raasta" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-[#1f1b3b]">Raasta</button>
+              </div>
+            </div>
+            
+            <!-- Desktop Links -->
+            <a href="#events" class="hidden md:inline-block text-gray-300 hover:text-white transition-colors">Events</a>
+            <a href="#venues" class="hidden md:inline-block text-gray-300 hover:text-white transition-colors">Venues</a>
+            <a href="#collab" class="hidden md:inline-block text-gray-300 hover:text-white transition-colors">Join us</a>
+            <a href="javascript:void(0)" onclick="openOrganizeModal()" class="hidden md:inline-block text-gray-300 hover:text-white transition-colors">Host Event</a>
+
+            <button type="button" id="loginBookBtn" class="tap btn-neon-primary px-4 py-2 rounded-full text-xs hidden sm:inline-flex items-center gap-1.5">
+              <i class="fa-solid fa-bolt text-[11px]"></i>
+              <span>Book a pass</span>
             </button>
 
-            <!-- Dropdown Menu -->
-            <div id="cityDropdownMenu" class="hidden absolute top-full mt-2 right-0 w-44 bg-[#100e21] border border-[#2b274c] rounded-xl shadow-2xl py-1 z-50">
-              <button type="button" data-area="all" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-[#1f1b3b]">All Nagpur</button>
-              <button type="button" data-area="dharampeth" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-[#1f1b3b]">Dharampeth</button>
-              <button type="button" data-area="civil_lines" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-[#1f1b3b]">Civil Lines</button>
-              <button type="button" data-area="wardha_rd" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-[#1f1b3b]">Wardha Road</button>
-              <button type="button" data-area="sadar" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-[#1f1b3b]">Sadar</button>
-              <button type="button" data-area="raasta" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-[#1f1b3b]">Raasta</button>
-            </div>
-          </div>
-          
-          <a href="#events" class="hidden sm:inline-block text-gray-400 hover:text-white">Events</a>
-          <a href="#venues" class="hidden sm:inline-block text-gray-400 hover:text-white">Venues</a>
-          <a href="#collab" class="hidden sm:inline-block text-gray-400 hover:text-white">Join us</a>
-          <a href="javascript:void(0)" onclick="openOrganizeModal()" class="hidden sm:inline-block text-gray-400 hover:text-white">Collaborator</a>
+            <!-- Mobile Drawer Menu Toggle Button -->
+            <button type="button" id="mobileMenuBtn" aria-label="Toggle navigation menu" class="md:hidden w-10 h-10 rounded-full bg-[#121124] border border-[#2b274c] flex items-center justify-center text-[#00f0ff] hover:border-[#00f0ff] transition-colors">
+              <i class="fa-solid fa-bars-staggered text-base"></i>
+            </button>
 
-          <button type="button" id="loginBookBtn" class="tap btn-neon-primary px-4 py-2 rounded-full text-xs">
-            Book a pass
-          </button>
+          </div>
+        </div>
+
+        <!-- Mobile Search Bar (Sleek, integrated below logo row on mobile) -->
+        <div class="mt-2.5 md:hidden relative">
+          <i class="fa-solid fa-magnifying-glass absolute left-3.5 top-3 text-gray-500 text-xs"></i>
+          <input type="text" id="mobileSearchInput" placeholder="Search events, artists, venues..." 
+                 class="w-full bg-[#100f1c] text-sm text-gray-200 pl-9 pr-4 py-2.5 rounded-full border border-[#26243d] focus:outline-none focus:border-[#00f0ff] transition-all" />
+        </div>
+
+      </div>
+
+      <!-- Mobile Dropdown / Slide-out Drawer -->
+      <div id="mobileDrawer" class="hidden md:hidden bg-[#0a0817] border-b border-[#2b274c] px-4 py-3 space-y-3">
+        <div class="grid grid-cols-2 gap-2 text-xs font-semibold">
+          <a href="#events" class="mobile-nav-link flex items-center gap-2.5 bg-[#141228] p-3 rounded-xl text-white hover:bg-[#1f1b3b] border border-[#2b274c]">
+            <i class="fa-solid fa-ticket text-[#00f0ff] text-sm"></i>
+            <span>Browse Events</span>
+          </a>
+          <a href="#venues" class="mobile-nav-link flex items-center gap-2.5 bg-[#141228] p-3 rounded-xl text-white hover:bg-[#1f1b3b] border border-[#2b274c]">
+            <i class="fa-solid fa-location-dot text-[#ff007f] text-sm"></i>
+            <span>10 Venues</span>
+          </a>
+          <a href="#collab" class="mobile-nav-link flex items-center gap-2.5 bg-[#141228] p-3 rounded-xl text-white hover:bg-[#1f1b3b] border border-[#2b274c]">
+            <i class="fa-solid fa-handshake text-yellow-400 text-sm"></i>
+            <span>Collaborate</span>
+          </a>
+          <a href="javascript:void(0)" onclick="openOrganizeModal(); closeMobileDrawer();" class="flex items-center gap-2.5 bg-[#141228] p-3 rounded-xl text-white hover:bg-[#1f1b3b] border border-[#2b274c]">
+            <i class="fa-solid fa-calendar-plus text-purple-400 text-sm"></i>
+            <span>Host an Event</span>
+          </a>
+        </div>
+        <div class="flex items-center justify-between pt-2 border-t border-[#1a172e] text-[11px]">
+          <a href="admin.html" class="text-gray-400 hover:text-[#00f0ff] flex items-center gap-1.5">
+            <i class="fa-solid fa-user-tie"></i> Admin Login
+          </a>
+          <a href="https://wa.me/918855882926" target="_blank" class="text-green-400 font-bold flex items-center gap-1">
+            <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp Support
+          </a>
         </div>
       </div>
     </header>
 
     <!-- 2. HERO CAROUSEL -->
-    <section class="max-w-7xl mx-auto px-4 lg:px-8 pt-6 pb-4">
-      <div class="relative bg-gradient-to-r from-[#120d2b] via-[#0d091e] to-[#0a1424] border border-cyan-500/20 rounded-2xl p-6 md:p-10 overflow-hidden shadow-[0_0_30px_rgba(0,240,255,0.08)]">
-        <div class="grid md:grid-cols-[1.2fr_0.8fr] gap-6 items-center relative z-10">
-        <div>
-          <span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#00f0ff] bg-[#00f0ff]/10 border border-[#00f0ff]/30 px-3 py-1 rounded-full mb-4">
-            <i class="fa-solid fa-user-group text-[10px]"></i> Who's going - Nagpur
-          </span>
-          <h1 class="text-2xl md:text-4xl font-extrabold text-white leading-tight">
-            See who’s going before you book
-          </h1>
-          <p class="text-xs md:text-sm text-gray-400 mt-2 mb-6">
-            Follow your friends, discover crowd ratios, and spot the party scene at every club in Nagpur.
-          </p>
-          <a href="#events" class="tap inline-flex items-center gap-2 btn-neon-primary px-5 py-2.5 rounded-lg text-sm">
-            <span>Find your people</span>
-            <i class="fa-solid fa-arrow-right text-[11px]"></i>
-          </a>
-        </div>
-        <img id="heroFlyer" src="assets/flyers/city-showdown.jpg" alt="City Showdown flyer" class="w-full max-w-xs mx-auto rounded-xl border border-white/10 shadow-2xl" />
+    <section class="max-w-7xl mx-auto px-4 lg:px-8 pt-4 sm:pt-6 pb-2">
+      <div class="relative bg-gradient-to-r from-[#120d2b] via-[#0d091e] to-[#0a1424] border border-cyan-500/20 rounded-2xl p-5 sm:p-8 md:p-10 overflow-hidden shadow-[0_0_30px_rgba(0,240,255,0.08)]">
+        <div class="grid md:grid-cols-[1.3fr_0.7fr] gap-6 items-center relative z-10">
+          <div>
+            <div class="flex flex-wrap items-center gap-2 mb-3">
+              <span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#00f0ff] bg-[#00f0ff]/10 border border-[#00f0ff]/30 px-3 py-1 rounded-full">
+                <i class="fa-solid fa-fire text-[10px] text-[#ff007f]"></i> Nagpur's #1 Nightlife
+              </span>
+              <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-gray-300 bg-white/5 border border-white/10 px-2.5 py-1 rounded-full">
+                <i class="fa-solid fa-bolt text-yellow-400 text-[10px]"></i> Instant Pass
+              </span>
+            </div>
+            
+            <h1 class="text-xl sm:text-3xl md:text-4xl font-extrabold text-white leading-tight">
+              See who’s going before you book
+            </h1>
+            <p class="text-xs sm:text-sm text-gray-300 mt-2 mb-4 leading-relaxed max-w-xl">
+              Spot the party scene, discover crowd ratios, and grab instant digital QR entry passes for the hottest clubs in Nagpur.
+            </p>
+
+            <!-- Quick Action Jump Chips for Mobile & Desktop -->
+            <div class="flex flex-wrap items-center gap-2.5">
+              <a href="#events" class="tap inline-flex items-center gap-2 btn-neon-primary px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold">
+                <i class="fa-solid fa-ticket text-xs"></i>
+                <span>Browse Events</span>
+                <i class="fa-solid fa-arrow-right text-[10px]"></i>
+              </a>
+              <a href="#venues" class="tap inline-flex items-center gap-2 bg-[#141228] hover:bg-[#1e1b38] text-white border border-[#2b274c] hover:border-[#00f0ff] px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-colors">
+                <i class="fa-solid fa-location-dot text-[#ff007f] text-xs"></i>
+                <span>10 Venues in City</span>
+              </a>
+            </div>
+          </div>
+
+          <!-- Hero Featured Flyer (Hidden on small mobile to maximize screen real estate, visible on tablets/desktops) -->
+          <div class="hidden sm:flex justify-center">
+            <img id="heroFlyer" src="assets/flyers/city-showdown.jpg" alt="Featured event flyer" class="w-full max-w-[240px] md:max-w-xs rounded-xl border border-white/10 shadow-[0_0_25px_rgba(0,240,255,0.2)] object-cover aspect-[4/5]" />
+          </div>
         </div>
       </div>
     </section>
@@ -146,52 +249,58 @@
     <section class="max-w-7xl mx-auto px-4 lg:px-8 py-3">
       <div class="flex items-center gap-2 overflow-x-auto pb-2 scrollbar-none text-xs">
         <button type="button" data-category="all" class="cat-filter-btn tap bg-[#00f0ff] text-black font-bold px-4 py-2 rounded-full whitespace-nowrap shadow-[0_0_12px_rgba(0,240,255,0.4)]">All</button>
-        <button type="button" data-category="concerts" class="cat-filter-btn bg-[#121124] text-gray-300 hover:text-white border border-[#2b274c] px-4 py-2 rounded-full whitespace-nowrap"><i class="fa-solid fa-music mr-1.5 text-[#ff007f]"></i> Concerts</button>
-        <button type="button" data-category="club_nights" class="cat-filter-btn bg-[#121124] text-gray-300 hover:text-white border border-[#2b274c] px-4 py-2 rounded-full whitespace-nowrap"><i class="fa-solid fa-champagne-glasses mr-1.5 text-[#00f0ff]"></i> Club Nights</button>
-        <button type="button" data-category="comedy" class="cat-filter-btn bg-[#121124] text-gray-300 hover:text-white border border-[#2b274c] px-4 py-2 rounded-full whitespace-nowrap"><i class="fa-solid fa-microphone mr-1.5 text-purple-400"></i> Comedy</button>
-        <button type="button" data-category="jamming" class="cat-filter-btn bg-[#121124] text-gray-300 hover:text-white border border-[#2b274c] px-4 py-2 rounded-full whitespace-nowrap"><i class="fa-solid fa-guitar mr-1.5 text-yellow-400"></i> Jamming</button>
+        <button type="button" data-category="concerts" class="cat-filter-btn tap bg-[#121124] text-gray-300 hover:text-white border border-[#2b274c] px-4 py-2 rounded-full whitespace-nowrap"><i class="fa-solid fa-music mr-1.5 text-[#ff007f]"></i> Concerts</button>
+        <button type="button" data-category="club_nights" class="cat-filter-btn tap bg-[#121124] text-gray-300 hover:text-white border border-[#2b274c] px-4 py-2 rounded-full whitespace-nowrap"><i class="fa-solid fa-champagne-glasses mr-1.5 text-[#00f0ff]"></i> Club Nights</button>
+        <button type="button" data-category="comedy" class="cat-filter-btn tap bg-[#121124] text-gray-300 hover:text-white border border-[#2b274c] px-4 py-2 rounded-full whitespace-nowrap"><i class="fa-solid fa-microphone mr-1.5 text-purple-400"></i> Comedy</button>
+        <button type="button" data-category="jamming" class="cat-filter-btn tap bg-[#121124] text-gray-300 hover:text-white border border-[#2b274c] px-4 py-2 rounded-full whitespace-nowrap"><i class="fa-solid fa-guitar mr-1.5 text-yellow-400"></i> Jamming</button>
       </div>
     </section>
 
     <!-- 4. TOP SELLING EVENTS -->
-    <section id="events" class="max-w-7xl mx-auto px-4 lg:px-8 py-8">
-      <div class="flex items-center justify-between mb-5">
-        <h2 class="text-lg md:text-xl font-bold text-white flex items-center gap-2">
-          Top selling events in Nagpur
-        </h2>
-        <a href="#events" id="seeAllEvents" class="text-xs text-[#00f0ff] font-semibold hover:underline">See all →</a>
+    <section id="events" class="max-w-7xl mx-auto px-4 lg:px-8 py-6 sm:py-8">
+      <div class="flex items-center justify-between mb-4 sm:mb-6">
+        <div>
+          <h2 class="text-lg sm:text-2xl font-bold text-white flex items-center gap-2">
+            <span>Top selling events in Nagpur</span>
+          </h2>
+          <p class="text-xs text-gray-400 mt-0.5">Real-time bookable club parties & live gigs</p>
+        </div>
+        <a href="#events" id="seeAllEvents" class="text-xs text-[#00f0ff] font-semibold hover:underline bg-[#00f0ff]/10 px-3 py-1.5 rounded-full border border-[#00f0ff]/20">See all →</a>
       </div>
-      <!-- Injected by app.js -->
-      <div id="eventsGrid" class="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5"></div>
+      <!-- Injected dynamically by app.js -->
+      <div id="eventsGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6"></div>
     </section>
 
     <!-- 5. TOP VENUES -->
-    <section id="venues" class="max-w-7xl mx-auto px-4 lg:px-8 py-10">
-      <div class="mb-6">
-        <h2 class="text-xl md:text-2xl font-bold text-white">7 venues in <span class="text-[#00f0ff]">Nagpur</span></h2>
-        <p class="text-xs md:text-sm text-gray-400 mt-1 max-w-3xl">From rooftop bars to warehouse clubs, every venue listed here hosts real, bookable events in Nagpur. Browse by type and capacity, check what's coming up, and follow a venue to hear about its next event first.</p>
+    <section id="venues" class="max-w-7xl mx-auto px-4 lg:px-8 py-8 sm:py-10">
+      <div class="mb-5 sm:mb-8 flex flex-col sm:flex-row sm:items-end justify-between gap-2">
+        <div>
+          <h2 class="text-xl sm:text-3xl font-bold text-white">10 Venues in <span class="text-[#00f0ff]">Nagpur</span></h2>
+          <p class="text-xs sm:text-sm text-gray-400 mt-1 max-w-2xl">From rooftop lounges to warehouse nightclubs, check where the crowd is partying tonight.</p>
+        </div>
+        <span class="text-xs text-[#ff007f] font-semibold bg-[#ff007f]/10 px-3 py-1 rounded-full border border-[#ff007f]/20 self-start sm:self-auto">Verified Clubs</span>
       </div>
 
-      <div id="venuesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <!-- venues will be loaded dynamically here -->
+      <div id="venuesGrid" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+        <!-- venues will be loaded dynamically by app.js with real photos -->
       </div>
     </section>
 
     <!-- 6. COLLABORATE WITH US -->
-    <section id="collab" class="max-w-7xl mx-auto px-4 lg:px-8 py-12">
-      <div class="bg-gradient-to-r from-[#170e30] via-[#0b0817] to-[#120f26] border border-pink-500/30 rounded-2xl p-6 md:p-10 relative overflow-hidden">
-        <div class="flex flex-col md:flex-row items-center justify-between gap-8 relative z-10">
-          <div class="flex-1">
+    <section id="collab" class="max-w-7xl mx-auto px-4 lg:px-8 py-8 sm:py-12">
+      <div class="bg-gradient-to-r from-[#170e30] via-[#0b0817] to-[#120f26] border border-pink-500/30 rounded-2xl p-6 sm:p-10 relative overflow-hidden">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-6 sm:gap-8 relative z-10">
+          <div class="flex-1 text-center md:text-left">
             <span class="text-[#ff007f] text-xs font-bold uppercase tracking-widest block mb-2">Partner with Nagpur's #1 Scene</span>
-            <h3 class="text-2xl md:text-4xl font-black font-['Orbitron'] text-white">
+            <h3 class="text-xl sm:text-3xl md:text-4xl font-black font-['Orbitron'] text-white">
               COLLABORATE WITH US
             </h3>
-            <p class="text-gray-300 text-xs md:text-sm mt-2 max-w-lg">
+            <p class="text-gray-300 text-xs sm:text-sm mt-2 max-w-lg">
               Together, let's create unforgettable nights. Host your event, promote your club, or build custom nightlife brand campaigns.
             </p>
           </div>
           <div>
-            <button type="button" id="openCollabBtn" class="btn-neon-primary px-8 py-3.5 rounded-full text-xs uppercase font-extrabold">
+            <button type="button" id="openCollabBtn" class="tap btn-neon-primary px-8 py-3.5 rounded-full text-xs uppercase font-extrabold shadow-[0_0_20px_rgba(0,240,255,0.4)]">
               Let's Collaborate <i class="fa-solid fa-arrow-right ml-1"></i>
             </button>
           </div>
@@ -200,35 +309,35 @@
     </section>
 
     <!-- 7. PREBOOZE FAQS (Interactive Accordion) -->
-    <section class="max-w-7xl mx-auto px-4 lg:px-8 py-10">
-      <h2 class="text-xl md:text-2xl font-bold text-white mb-6">Frequently Asked Questions</h2>
+    <section class="max-w-7xl mx-auto px-4 lg:px-8 py-8 sm:py-10">
+      <h2 class="text-lg sm:text-2xl font-bold text-white mb-5">Frequently Asked Questions</h2>
       <div class="space-y-3 max-w-3xl">
         <div class="bg-[#100e21] border border-[#2b274c] rounded-xl overflow-hidden">
-          <button type="button" class="faq-toggle w-full p-4 text-left text-xs font-bold text-white flex justify-between items-center">
+          <button type="button" class="faq-toggle w-full p-4 text-left text-xs sm:text-sm font-bold text-white flex justify-between items-center">
             <span>How do I get my ticket?</span>
             <i class="fa-solid fa-chevron-down faq-icon transition-transform text-[#00f0ff]"></i>
           </button>
-          <div class="p-4 pt-0 text-[11px] text-gray-400 border-t border-[#1e1c33] hidden">
+          <div class="p-4 pt-0 text-xs text-gray-400 border-t border-[#1e1c33] hidden">
             Sent instantly to your WhatsApp—also downloadable as a scannable digital QR pass from the confirmation modal.
           </div>
         </div>
 
         <div class="bg-[#100e21] border border-[#2b274c] rounded-xl overflow-hidden">
-          <button type="button" class="faq-toggle w-full p-4 text-left text-xs font-bold text-white flex justify-between items-center">
+          <button type="button" class="faq-toggle w-full p-4 text-left text-xs sm:text-sm font-bold text-white flex justify-between items-center">
             <span>Can I cancel a booking?</span>
             <i class="fa-solid fa-chevron-down faq-icon transition-transform text-[#00f0ff]"></i>
           </button>
-          <div class="p-4 pt-0 text-[11px] text-gray-400 border-t border-[#1e1c33] hidden">
+          <div class="p-4 pt-0 text-xs text-gray-400 border-t border-[#1e1c33] hidden">
             Yes, tickets can be cancelled before event showtime for instant UPI / card reversals.
           </div>
         </div>
 
         <div class="bg-[#100e21] border border-[#2b274c] rounded-xl overflow-hidden">
-          <button type="button" class="faq-toggle w-full p-4 text-left text-xs font-bold text-white flex justify-between items-center">
+          <button type="button" class="faq-toggle w-full p-4 text-left text-xs sm:text-sm font-bold text-white flex justify-between items-center">
             <span>Do I need an account to book?</span>
             <i class="fa-solid fa-chevron-down faq-icon transition-transform text-[#00f0ff]"></i>
           </button>
-          <div class="p-4 pt-0 text-[11px] text-gray-400 border-t border-[#1e1c33] hidden">
+          <div class="p-4 pt-0 text-xs text-gray-400 border-t border-[#1e1c33] hidden">
             No account is required. Your name, age, and mobile number or Instagram are asked only when you book a pass.
           </div>
         </div>
@@ -236,11 +345,45 @@
     </section>
 
     <!-- 8. FOOTER -->
-    <footer class="border-t border-[#1a182c] bg-[#050508] py-8 px-4 text-xs text-gray-400 text-center">
+    <footer class="border-t border-[#1a182c] bg-[#050508] py-8 px-4 text-xs text-gray-400 text-center mb-16 md:mb-0">
       <p>© 2026 PUB SCENE Nagpur. Powered by Razorpay & SQLite.</p>
-      <p class="mt-2"><a href="admin.html" class="text-[#00f0ff]">Owner login</a></p>
+      <p class="mt-2"><a href="admin.html" class="text-[#00f0ff] hover:underline">Owner & Organizer Login</a></p>
     </footer>
 
+  </div>
+
+  <!-- MOBILE BOTTOM NAVIGATION BAR -->
+  <nav id="mobileBottomNav" class="md:hidden fixed bottom-0 left-0 right-0 z-50 bg-[#090814]/95 backdrop-blur-xl border-t border-[#221f38] px-3 py-2 flex items-center justify-around text-[10px] font-semibold shadow-[0_-5px_20px_rgba(0,0,0,0.6)]">
+    <a href="#" class="flex flex-col items-center gap-1 text-gray-400 hover:text-[#00f0ff] transition-colors py-1">
+      <i class="fa-solid fa-house text-base"></i>
+      <span>Home</span>
+    </a>
+    <a href="#events" class="flex flex-col items-center gap-1 text-gray-400 hover:text-[#00f0ff] transition-colors py-1">
+      <i class="fa-solid fa-ticket text-base text-[#00f0ff]"></i>
+      <span>Events</span>
+    </a>
+    <a href="#venues" class="flex flex-col items-center gap-1 text-gray-400 hover:text-[#00f0ff] transition-colors py-1">
+      <i class="fa-solid fa-location-dot text-base text-[#ff007f]"></i>
+      <span>Venues</span>
+    </a>
+    <a href="#collab" class="flex flex-col items-center gap-1 text-gray-400 hover:text-[#00f0ff] transition-colors py-1">
+      <i class="fa-solid fa-handshake text-base text-yellow-400"></i>
+      <span>Collab</span>
+    </a>
+    <button type="button" onclick="document.getElementById('events')?.scrollIntoView({ behavior: 'smooth' });" class="flex flex-col items-center gap-0.5 text-black bg-gradient-to-r from-[#00f0ff] to-[#0099ff] px-3 py-1 rounded-full font-bold shadow-[0_0_12px_rgba(0,240,255,0.4)] active:scale-95 transition-transform">
+      <i class="fa-solid fa-bolt text-xs"></i>
+      <span class="text-[9px]">Pass</span>
+    </button>
+  </nav>
+
+  <!-- FLOATING QUICK CONTACT BUTTONS -->
+  <div class="fixed bottom-20 md:bottom-6 right-3 md:right-5 z-40 flex flex-col gap-2.5">
+    <a href="tel:+918855882926" aria-label="Call Pub Scene" class="bg-blue-600/90 hover:bg-blue-600 text-white w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110 border border-white/20">
+      <i class="fa-solid fa-phone text-sm sm:text-base"></i>
+    </a>
+    <a href="https://wa.me/918855882926" target="_blank" aria-label="WhatsApp Pub Scene" class="bg-[#25D366] hover:bg-[#20b858] text-white w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110 border border-white/20">
+      <i class="fa-brands fa-whatsapp text-lg sm:text-xl"></i>
+    </a>
   </div>
 
   <!-- BOOKING MODAL -->
@@ -263,9 +406,9 @@
               <p id="couplePriceLabel" class="text-[10px] text-gray-400">₹0 each</p>
             </div>
             <div class="flex items-center gap-2">
-              <button type="button" onclick="changeQty('couple', -1)" class="w-6 h-6 rounded-full bg-[#121124] border border-[#2b274c] text-white">−</button>
-              <span id="qty-couple" class="text-xs font-bold text-white w-4 text-center">1</span>
-              <button type="button" onclick="changeQty('couple', 1)" class="w-6 h-6 rounded-full bg-[#121124] border border-[#2b274c] text-white">+</button>
+              <button type="button" onclick="changeQty('couple', -1)" class="w-7 h-7 rounded-full bg-[#121124] border border-[#2b274c] text-white font-bold">−</button>
+              <span id="qty-couple" class="text-xs font-bold text-white w-5 text-center">1</span>
+              <button type="button" onclick="changeQty('couple', 1)" class="w-7 h-7 rounded-full bg-[#121124] border border-[#2b274c] text-white font-bold">+</button>
             </div>
           </div>
           <div class="flex items-center justify-between bg-[#18152e] border border-purple-800/40 rounded px-3 py-2">
@@ -274,16 +417,16 @@
               <p id="stagPriceLabel" class="text-[10px] text-gray-400">₹0 each</p>
             </div>
             <div class="flex items-center gap-2">
-              <button type="button" onclick="changeQty('stag', -1)" class="w-6 h-6 rounded-full bg-[#121124] border border-[#2b274c] text-white">−</button>
-              <span id="qty-stag" class="text-xs font-bold text-white w-4 text-center">0</span>
-              <button type="button" onclick="changeQty('stag', 1)" class="w-6 h-6 rounded-full bg-[#121124] border border-[#2b274c] text-white">+</button>
+              <button type="button" onclick="changeQty('stag', -1)" class="w-7 h-7 rounded-full bg-[#121124] border border-[#2b274c] text-white font-bold">−</button>
+              <span id="qty-stag" class="text-xs font-bold text-white w-5 text-center">0</span>
+              <button type="button" onclick="changeQty('stag', 1)" class="w-7 h-7 rounded-full bg-[#121124] border border-[#2b274c] text-white font-bold">+</button>
             </div>
           </div>
         </div>
 
         <div class="flex items-center justify-between text-xs mb-3">
           <span class="text-gray-400">Total</span>
-          <span id="bookingTotalDisplay" class="font-bold text-[#00f0ff]">₹0</span>
+          <span id="bookingTotalDisplay" class="font-bold text-[#00f0ff] text-base">₹0</span>
         </div>
 
         <button type="button" id="continueToDetailsBtn" class="tap w-full btn-neon-primary py-3 rounded-lg text-sm uppercase">
@@ -298,9 +441,9 @@
                  class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-3 text-base text-white focus:outline-none focus:border-[#00f0ff]" />
           <input type="text" id="custInstagram" placeholder="Instagram username" autocomplete="off"
                  class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-3 text-base text-white focus:outline-none focus:border-[#00f0ff]" />
-          <input type="tel" id="custPhone" placeholder="Mobile number" autocomplete="tel"
+          <input type="tel" id="custPhone" placeholder="Mobile number (10 digits)" autocomplete="tel"
                  class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-3 text-base text-white focus:outline-none focus:border-[#00f0ff]" />
-          <button type="button" id="confirmPassBtn" class="tap w-full btn-neon-primary py-3 rounded-lg text-sm uppercase">
+          <button type="button" id="confirmPassBtn" class="tap w-full btn-neon-primary py-3 rounded-lg text-sm uppercase font-bold">
             Claim Digital Entry Pass
           </button>
         </div>
@@ -328,14 +471,14 @@
         <p class="text-[10px] uppercase font-bold text-[#ff007f]">Partner with PUB SCENE</p>
         <h3 class="text-lg font-bold text-white">Tell us about your night</h3>
         <input type="text" id="collabName" placeholder="Your name" required
-               class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-[#ff007f]" />
+               class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-2.5 text-sm text-white focus:outline-none focus:border-[#ff007f]" />
         <input type="tel" id="collabPhone" placeholder="Phone number" required
-               class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-[#ff007f]" />
+               class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-2.5 text-sm text-white focus:outline-none focus:border-[#ff007f]" />
         <input type="email" id="collabEmail" placeholder="Email (optional)"
-               class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-[#ff007f]" />
+               class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-2.5 text-sm text-white focus:outline-none focus:border-[#ff007f]" />
         <textarea id="collabMessage" rows="3" placeholder="Venue, event idea, or campaign"
-                  class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-[#ff007f]"></textarea>
-        <button type="submit" id="collabSubmitBtn" class="w-full btn-neon-primary py-2.5 rounded-lg text-xs uppercase">
+                  class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-2.5 text-sm text-white focus:outline-none focus:border-[#ff007f]"></textarea>
+        <button type="submit" id="collabSubmitBtn" class="tap w-full btn-neon-primary py-2.5 rounded-lg text-xs uppercase font-bold">
           Send collaboration request
         </button>
       </form>
@@ -354,18 +497,19 @@
         <i class="fa-solid fa-xmark"></i>
       </button>
       <form id="organizeForm" class="space-y-3">
-        <h3 class="text-lg font-bold text-white mb-4">Organize an Event</h3>
+        <h3 class="text-lg font-bold text-white mb-2">Host / Organize an Event</h3>
+        <p class="text-xs text-gray-400 mb-3">Publish your party directly to Nagpur's party crowd</p>
         
         <div>
           <label class="text-xs text-gray-300 block mb-1">Event Name</label>
-          <input type="text" id="orgEventName" placeholder="e.g. Neon Nights" required
-                 class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-[#00f0ff]" />
+          <input type="text" id="orgEventName" placeholder="e.g. Neon Nights ft. DJ" required
+                 class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-2.5 text-sm text-white focus:outline-none focus:border-[#00f0ff]" />
         </div>
         
         <div>
           <label class="text-xs text-gray-300 block mb-1">City</label>
           <select id="orgCity" required
-                  class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-[#00f0ff]">
+                  class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-2.5 text-sm text-white focus:outline-none focus:border-[#00f0ff]">
             <option value="nagpur">Nagpur</option>
             <option value="mumbai">Mumbai</option>
             <option value="goa">Goa</option>
@@ -377,57 +521,60 @@
         <div>
           <label class="text-xs text-gray-300 block mb-1">Venue</label>
           <select id="orgVenue" required
-                  class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-[#00f0ff]">
-            <option value="Dabo">Dabo</option>
+                  class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-2.5 text-sm text-white focus:outline-none focus:border-[#00f0ff]">
             <option value="Agent Jacks">Agent Jacks</option>
-            <option value="Suaa Nagpur">Suaa Nagpur</option>
-            <option value="Ice Cube Lounge">Ice Cube Lounge</option>
-            <option value="Romeo Lane">Romeo Lane</option>
-            <option value="Raasta">Raasta</option>
             <option value="Warehouse Cafe">Warehouse Cafe</option>
+            <option value="Raasta">Raasta</option>
+            <option value="Hitchki">Hitchki</option>
+            <option value="ICE-CUBE Lounge">ICE-CUBE Lounge</option>
+            <option value="Romeo Lane">Romeo Lane</option>
+            <option value="Brillo Club & Kitchen">Brillo Club & Kitchen</option>
+            <option value="River Edge">River Edge</option>
+            <option value="SUAA Club & Restro">SUAA Club & Restro</option>
+            <option value="Zero Degree Lounge">Zero Degree Lounge</option>
           </select>
         </div>
         
         <div class="flex gap-3">
           <div class="flex-1">
-            <label class="text-xs text-gray-300 block mb-1">Launch Time</label>
+            <label class="text-xs text-gray-300 block mb-1">Start Time</label>
             <input type="datetime-local" id="orgLaunchTime" required style="color-scheme: dark;"
-                   class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-[#00f0ff]" />
+                   class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-2.5 text-sm text-white focus:outline-none focus:border-[#00f0ff]" />
           </div>
           <div class="flex-1">
-            <label class="text-xs text-gray-300 block mb-1">Ending Time</label>
+            <label class="text-xs text-gray-300 block mb-1">End Time</label>
             <input type="datetime-local" id="orgEndingTime" required style="color-scheme: dark;"
-                   class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-[#00f0ff]" />
+                   class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-2.5 text-sm text-white focus:outline-none focus:border-[#00f0ff]" />
           </div>
         </div>
         
         <div>
-          <label class="text-xs text-gray-300 block mb-1">Event Type</label>
+          <label class="text-xs text-gray-300 block mb-1">Event Category</label>
           <select id="orgEventType" required
-                  class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-2 text-xs text-white focus:outline-none focus:border-[#00f0ff]">
+                  class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-2.5 text-sm text-white focus:outline-none focus:border-[#00f0ff]">
+            <option value="club_nights">Club Nights</option>
+            <option value="concerts">Concerts</option>
             <option value="jamming">Jamming</option>
-            <option value="open_mics">Open Mics</option>
-            <option value="live_gigs">Live Gigs</option>
+            <option value="comedy">Comedy</option>
             <option value="dj_sets">DJ Sets</option>
-            <option value="stand_up">Stand-up</option>
           </select>
         </div>
         
         <div>
-          <label class="text-xs text-gray-300 block mb-1">Flyer Template</label>
+          <label class="text-xs text-gray-300 block mb-1">Flyer Image</label>
           <input type="file" id="orgFlyerFile" accept="image/*" required
                  class="w-full text-xs text-gray-300 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-[#00f0ff]/10 file:text-[#00f0ff] hover:file:bg-[#00f0ff]/20" />
         </div>
         
-        <button type="submit" id="orgSubmitBtn" class="w-full btn-neon-primary py-3 rounded-lg text-sm font-bold mt-2">
+        <button type="submit" id="orgSubmitBtn" class="tap w-full btn-neon-primary py-3 rounded-lg text-sm font-bold mt-2">
           Submit Event
         </button>
       </form>
     </div>
   </div>
 
-  <script src="assets/js/data.js?v=3"></script>
-  <script src="assets/js/booking.js?v=3"></script>
-  <script src="assets/js/app.js?v=3"></script>
+  <script src="assets/js/data.js?v=4"></script>
+  <script src="assets/js/booking.js?v=4"></script>
+  <script src="assets/js/app.js?v=4"></script>
 </body>
 </html>
