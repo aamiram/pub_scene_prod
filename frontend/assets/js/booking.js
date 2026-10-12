@@ -1,4 +1,4 @@
-// Booking state for the digital pass modal.
+// Booking state for the pass modal with PhonePe QR & WhatsApp verification.
 let activeBookingVenue = null;
 let quantities = {
   couple: 1,
@@ -6,6 +6,7 @@ let quantities = {
 };
 
 const API_BASE = window.location.protocol === 'file:' ? 'http://localhost:5000' : '';
+const WHATSAPP_NUMBER = '918855882926';
 
 function changeQty(type, delta) {
   if (!quantities.hasOwnProperty(type)) return;
@@ -41,17 +42,20 @@ function openBookingModal(venueId) {
     const field = document.getElementById(id);
     if (field) field.value = '';
   });
+
+  // Reset stage views
+  document.getElementById('modalBookingForm')?.classList.remove('hidden');
+  document.getElementById('modalGeneratingQR')?.classList.add('hidden');
+  document.getElementById('modalPaymentQR')?.classList.add('hidden');
   document.getElementById('guestDetails')?.classList.add('hidden');
   document.getElementById('continueToDetailsBtn')?.classList.remove('hidden');
 
   const submitBtn = document.getElementById('confirmPassBtn');
   if (submitBtn) {
     submitBtn.disabled = false;
-    submitBtn.textContent = 'Claim Digital Entry Pass';
+    submitBtn.innerHTML = '<i class="fa-solid fa-shield-halved text-xs mr-2"></i><span>Proceed to Secure Pay</span>';
   }
 
-  document.getElementById('modalBookingForm')?.classList.remove('hidden');
-  document.getElementById('modalPassSuccess')?.classList.add('hidden');
   document.getElementById('bookingModal')?.classList.remove('hidden');
   document.body.classList.add('overflow-hidden');
 }
@@ -59,22 +63,6 @@ function openBookingModal(venueId) {
 function closeModal() {
   document.getElementById('bookingModal')?.classList.add('hidden');
   document.body.classList.remove('overflow-hidden');
-}
-
-function renderDigitalPass(passCode, venueName) {
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent('PUBSCENE_VALID_' + passCode)}`;
-  const setText = (id, value) => {
-    const node = document.getElementById(id);
-    if (node) node.textContent = value;
-  };
-
-  setText('passCodeDisplay', passCode);
-  setText('passVenueDisplay', venueName);
-  const qr = document.getElementById('passQRCode');
-  if (qr) qr.src = qrUrl;
-
-  document.getElementById('modalBookingForm')?.classList.add('hidden');
-  document.getElementById('modalPassSuccess')?.classList.remove('hidden');
 }
 
 document.getElementById('continueToDetailsBtn')?.addEventListener('click', () => {
@@ -89,7 +77,7 @@ document.getElementById('continueToDetailsBtn')?.addEventListener('click', () =>
 
 document.getElementById('confirmPassBtn')?.addEventListener('click', async () => {
   if (!activeBookingVenue) {
-    alert('Choose an event before claiming a pass.');
+    alert('Choose an event before proceeding.');
     return;
   }
 
@@ -130,9 +118,30 @@ document.getElementById('confirmPassBtn')?.addEventListener('click', async () =>
     }
   };
 
-  submitBtn.disabled = true;
-  const originalLabel = submitBtn.textContent;
-  submitBtn.textContent = 'Generating digital pass...';
+  // Switch to Generating Animation View
+  document.getElementById('modalBookingForm')?.classList.add('hidden');
+  document.getElementById('modalGeneratingQR')?.classList.remove('hidden');
+  document.getElementById('modalPaymentQR')?.classList.add('hidden');
+
+  const titleNode = document.getElementById('genStatusTitle');
+  const subNode = document.getElementById('genStatusSubtitle');
+  const progressNode = document.getElementById('genProgressBar');
+
+  if (titleNode) titleNode.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-[#00f0ff] text-sm mr-2"></i><span>Generating QR for Secure Pay...</span>';
+  if (subNode) subNode.textContent = 'Securing UPI payment session...';
+  if (progressNode) progressNode.style.width = '25%';
+
+  const animStep1 = setTimeout(() => {
+    if (subNode) subNode.textContent = 'Allocating pass code and venue reservation...';
+    if (progressNode) progressNode.style.width = '65%';
+  }, 500);
+
+  const animStep2 = setTimeout(() => {
+    if (subNode) subNode.textContent = 'Binding PhonePe merchant QR for secure pay...';
+    if (progressNode) progressNode.style.width = '90%';
+  }, 1100);
+
+  const startTime = Date.now();
 
   try {
     const res = await fetch(`${API_BASE}/api/create-pass-order`, {
@@ -144,13 +153,55 @@ document.getElementById('confirmPassBtn')?.addEventListener('click', async () =>
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || 'Server error occurred');
 
-    renderDigitalPass(data.passCode, data.venueName || activeBookingVenue.name);
+    // Ensure the futuristic generation animation displays for at least 1.6s
+    const elapsed = Date.now() - startTime;
+    const remainingDelay = Math.max(0, 1600 - elapsed);
+    if (progressNode) progressNode.style.width = '100%';
+
+    setTimeout(() => {
+      // Transition from Generating Animation to Payment QR Stage
+      document.getElementById('modalGeneratingQR')?.classList.add('hidden');
+      document.getElementById('modalPaymentQR')?.classList.remove('hidden');
+
+      // Populate Pass Code and Summary
+      const codeNode = document.getElementById('qrPassCodeDisplay');
+      if (codeNode) codeNode.textContent = `#${data.passCode || 'PUB-PASS'}`;
+
+      const summaryNode = document.getElementById('qrPassSummaryDisplay');
+      if (summaryNode) {
+        const parts = [];
+        if (quantities.couple > 0) parts.push(`Couple: ${quantities.couple}`);
+        if (quantities.stag > 0) parts.push(`Stag: ${quantities.stag}`);
+        summaryNode.textContent = parts.join(', ') || '1 Pass';
+      }
+
+      // Pre-filled WhatsApp confirmation message
+      const eventName = data.venueName || activeBookingVenue.name;
+      const contactInfo = phone || instagram || 'Guest';
+      const passText = `Couple: ${quantities.couple}, Stag: ${quantities.stag}`;
+
+      const waText = 
+        `Hi Pub Scene! I have completed payment for *${eventName}*.\n\n` +
+        `🎫 *Pass Code:* #${data.passCode}\n` +
+        `👤 *Name:* ${fullName}\n` +
+        `📱 *Contact:* ${contactInfo}\n` +
+        `👥 *Passes:* ${passText}\n\n` +
+        `I have attached my payment screenshot above. Please verify and send my tickets!`;
+
+      const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waText)}`;
+      const waBtn = document.getElementById('whatsappRedirectBtn');
+      if (waBtn) {
+        waBtn.href = waUrl;
+      }
+    }, remainingDelay);
+
   } catch (err) {
+    clearTimeout(animStep1);
+    clearTimeout(animStep2);
     console.error(err);
-    alert('Unable to process pass: ' + err.message);
-  } finally {
-    submitBtn.disabled = false;
-    submitBtn.textContent = originalLabel;
+    alert('Unable to generate payment QR: ' + err.message);
+    document.getElementById('modalGeneratingQR')?.classList.add('hidden');
+    document.getElementById('modalBookingForm')?.classList.remove('hidden');
   }
 });
 
