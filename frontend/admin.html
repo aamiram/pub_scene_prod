@@ -2,88 +2,386 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>PUB SCENE | Owner</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" />
+  <meta name="theme-color" content="#07070b" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <title>PUB SCENE | Owner Control Panel</title>
   <link rel="icon" href="assets/images/logo.png?v=2" />
-  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css" />
   <style>
-    :root { color-scheme: dark; }
-    * { box-sizing: border-box; }
+    :root {
+      color-scheme: dark;
+      --bg: #07070b;
+      --card-bg: #100e21;
+      --card-border: #28244a;
+      --input-bg: #16132d;
+      --input-border: #322d56;
+      --accent: #00f0ff;
+      --accent-grad: linear-gradient(135deg, #00f0ff 0%, #0088ff 100%);
+      --pink: #ff3388;
+    }
+    * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
     body {
       margin: 0;
       font-family: 'Plus Jakarta Sans', sans-serif;
-      background: #07070b;
+      background: var(--bg);
       color: #e8e8f0;
+      line-height: 1.5;
+      padding-bottom: 32px;
     }
-    header, main { width: min(980px, calc(100% - 24px)); margin: 0 auto; }
-    header { display: flex; justify-content: space-between; align-items: center; gap: 12px; padding: 16px 0; }
-    a { color: #00f0ff; }
-    h1, h2 { margin: 0; }
-    h1 { font-size: 1.35rem; }
-    button, input, select, textarea { font: inherit; font-size: 16px; }
-    button { min-height: 44px; border: 0; border-radius: 999px; padding: 10px 16px; cursor: pointer; }
-    .primary { background: linear-gradient(135deg, #00f0ff, #0099ff); color: #041018; font-weight: 800; }
-    .ghost { background: #17152b; color: white; border: 1px solid #2b274c; }
-    .danger { background: #3a1024; color: #ffb4d2; }
-    .tabs { display: flex; gap: 8px; overflow-x: auto; padding-bottom: 8px; }
-    .tabs button[aria-selected="true"] { background: #00f0ff; color: #041018; }
+    header, main {
+      width: min(1000px, calc(100% - 20px));
+      margin: 0 auto;
+    }
+    @media (max-width: 480px) {
+      header, main { width: calc(100% - 16px); }
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 12px;
+      padding: 14px 0;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      background: rgba(7, 7, 11, 0.88);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      border-bottom: 1px solid rgba(43, 39, 76, 0.5);
+    }
+    .brand-wrap { display: flex; align-items: center; gap: 10px; }
+    .brand-logo { width: 38px; height: 38px; border-radius: 50%; object-fit: cover; border: 1.5px solid var(--accent); }
+    .brand-text h1 { font-size: 1.15rem; font-weight: 800; margin: 0; display: flex; align-items: center; gap: 6px; }
+    .brand-link { color: var(--accent); font-size: 0.8rem; text-decoration: none; font-weight: 600; display: inline-flex; align-items: center; gap: 4px; }
+    .brand-link:hover { text-decoration: underline; }
+    
+    button, input, select, textarea {
+      font: inherit;
+      font-size: 16px !important; /* Prevents auto-zoom in mobile Safari */
+    }
+    button {
+      min-height: 44px;
+      border: 0;
+      border-radius: 999px;
+      padding: 10px 18px;
+      cursor: pointer;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      font-weight: 700;
+      transition: transform 0.15s ease, box-shadow 0.2s ease, opacity 0.2s ease;
+    }
+    button:active { transform: scale(0.97); }
+    .primary {
+      background: var(--accent-grad);
+      color: #030a14;
+      box-shadow: 0 4px 18px rgba(0, 240, 255, 0.25);
+    }
+    .ghost {
+      background: #17142d;
+      color: white;
+      border: 1px solid #2f2a52;
+    }
+    .danger {
+      background: #3a1024;
+      color: #ffb4d2;
+      border: 1px solid #5a1936;
+    }
+
+    /* Mobile-first scrolling tabs */
+    .tabs-wrapper {
+      position: sticky;
+      top: 67px;
+      z-index: 90;
+      background: rgba(7, 7, 11, 0.95);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      padding: 8px 0;
+      margin-bottom: 12px;
+      border-bottom: 1px solid rgba(43, 39, 76, 0.4);
+    }
+    .tabs {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      scrollbar-width: none;
+      -webkit-overflow-scrolling: touch;
+      padding: 2px;
+    }
+    .tabs::-webkit-scrollbar { display: none; }
+    .tabs button {
+      white-space: nowrap;
+      flex-shrink: 0;
+      font-size: 0.85rem !important;
+      padding: 9px 16px;
+      border-radius: 999px;
+      background: #141129;
+      color: #9f9cb8;
+      border: 1px solid #2a254c;
+      min-height: 40px;
+    }
+    .tabs button[aria-selected="true"] {
+      background: var(--accent-grad);
+      color: #040e1a;
+      border-color: transparent;
+      box-shadow: 0 2px 14px rgba(0, 240, 255, 0.35);
+      font-weight: 800;
+    }
+
     .panel { display: none; }
-    .panel.active { display: block; }
+    .panel.active { display: block; animation: fadeIn 0.2s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(4px); } to { opacity: 1; transform: translateY(0); } }
+
     .card, form.card {
-      background: #100e21;
-      border: 1px solid #2b274c;
+      background: var(--card-bg);
+      border: 1px solid var(--card-border);
       border-radius: 18px;
-      padding: 16px;
+      padding: 18px;
       margin: 12px 0;
+      box-shadow: 0 6px 24px rgba(0, 0, 0, 0.35);
     }
-    label { display: block; font-size: 0.85rem; margin: 12px 0 6px; color: #c9c9da; }
+    @media (max-width: 480px) {
+      .card, form.card { padding: 14px; border-radius: 16px; margin: 10px 0; }
+    }
+
+    label {
+      display: block;
+      font-size: 0.82rem;
+      font-weight: 600;
+      margin: 12px 0 6px;
+      color: #cfd0e6;
+      letter-spacing: 0.2px;
+    }
+    .hint {
+      font-size: 0.76rem;
+      color: #9290af;
+      margin-top: 3px;
+      display: block;
+    }
     input, select, textarea {
       width: 100%;
-      background: #18152e;
+      background: var(--input-bg);
       color: white;
-      border: 1px solid #3a3560;
+      border: 1px solid var(--input-border);
       border-radius: 12px;
-      padding: 12px;
+      padding: 12px 14px;
+      transition: border-color 0.2s, box-shadow 0.2s;
     }
-    .row { display: grid; grid-template-columns: 1fr; gap: 12px; }
-    @media (min-width: 720px) {
+    input:focus, select:focus, textarea:focus {
+      border-color: var(--accent);
+      outline: none;
+      box-shadow: 0 0 0 3px rgba(0, 240, 255, 0.15);
+    }
+
+    .row {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    @media (min-width: 640px) {
       .row.two { grid-template-columns: 1fr 1fr; }
     }
-    .flyer-list { display: grid; grid-template-columns: 1fr; gap: 12px; }
-    @media (min-width: 800px) {
+
+    /* Ticket / Pass Customization Card */
+    .ticket-config-card {
+      background: linear-gradient(180deg, #161233 0%, #100d24 100%);
+      border: 1.5px solid #3c356b;
+      border-radius: 16px;
+      padding: 16px;
+      margin: 18px 0;
+      position: relative;
+    }
+    .ticket-config-header {
+      display: flex;
+      align-items: flex-start;
+      gap: 12px;
+      margin-bottom: 12px;
+      padding-bottom: 12px;
+      border-bottom: 1px solid #2d2752;
+    }
+    .ticket-config-icon {
+      font-size: 1.6rem;
+      background: rgba(0, 240, 255, 0.12);
+      width: 44px;
+      height: 44px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 12px;
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      flex-shrink: 0;
+    }
+    .ticket-config-title {
+      font-size: 1.05rem;
+      font-weight: 800;
+      color: #fff;
+      margin: 0;
+    }
+    .ticket-config-sub {
+      font-size: 0.8rem;
+      color: #a4a2c2;
+      margin: 4px 0 0;
+    }
+
+    .pass-type-block {
+      background: #191536;
+      border: 1px solid #322b5c;
+      border-radius: 14px;
+      padding: 14px;
+      margin-top: 12px;
+    }
+    .pass-type-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 3px 10px;
+      border-radius: 999px;
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+    .badge-pass1 {
+      background: rgba(0, 240, 255, 0.15);
+      color: #00f0ff;
+      border: 1px solid rgba(0, 240, 255, 0.4);
+    }
+    .badge-pass2 {
+      background: rgba(255, 51, 136, 0.15);
+      color: #ff5599;
+      border: 1px solid rgba(255, 51, 136, 0.4);
+    }
+
+    .flyer-list {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 12px;
+    }
+    @media (min-width: 768px) {
       .flyer-list { grid-template-columns: 1fr 1fr; }
     }
     .flyer {
       display: grid;
-      grid-template-columns: 92px 1fr;
-      gap: 12px;
+      grid-template-columns: 100px 1fr;
+      gap: 14px;
       align-items: start;
     }
-    .flyer img { width: 92px; height: auto; border-radius: 8px; background: black; }
-    .muted { color: #a3a3b8; font-size: 0.9rem; }
-    .actions { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 10px; }
-    .preview { width: min(220px, 100%); border-radius: 12px; margin-top: 8px; }
-    .login-wrap { min-height: 100vh; display: grid; place-items: center; padding: 16px; }
-    .login-wrap form { width: min(420px, 100%); }
-    .error { color: #ff8ab5; min-height: 1.2em; }
-    table { width: 100%; border-collapse: collapse; font-size: 0.92rem; }
-    th, td { text-align: left; padding: 8px 6px; border-bottom: 1px solid #2b274c; vertical-align: top; }
+    @media (max-width: 400px) {
+      .flyer { grid-template-columns: 80px 1fr; gap: 10px; }
+    }
+    .flyer img {
+      width: 100%;
+      height: 120px;
+      object-fit: cover;
+      border-radius: 10px;
+      background: #000;
+      border: 1px solid #2b274c;
+    }
+    .muted { color: #9f9cb8; font-size: 0.85rem; }
+    
+    .actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      margin-top: 14px;
+    }
+    @media (max-width: 540px) {
+      .actions button { flex: 1; min-width: 130px; }
+    }
+
+    .preview { width: min(240px, 100%); border-radius: 12px; margin-top: 8px; border: 1px solid #332d5c; }
+    
+    /* Login screen */
+    .login-wrap {
+      min-height: 90vh;
+      display: grid;
+      place-items: center;
+      padding: 16px;
+    }
+    .login-wrap form {
+      width: min(440px, 100%);
+      padding: 24px;
+    }
+    .login-header-logo {
+      width: 56px;
+      height: 56px;
+      border-radius: 50%;
+      margin: 0 auto 12px;
+      display: block;
+      border: 2px solid var(--accent);
+      box-shadow: 0 0 20px rgba(0, 240, 255, 0.3);
+    }
+    .error { color: #ff8ab5; min-height: 1.2em; font-size: 0.85rem; margin: 8px 0; }
+
+    /* Mobile-friendly table container */
+    .table-wrap {
+      overflow-x: auto;
+      -webkit-overflow-scrolling: touch;
+      border-radius: 14px;
+    }
+    table { width: 100%; border-collapse: collapse; font-size: 0.88rem; min-width: 580px; }
+    th, td { text-align: left; padding: 12px 10px; border-bottom: 1px solid #231f40; vertical-align: middle; }
+    th { font-size: 0.78rem; text-transform: uppercase; color: #8e8ba8; letter-spacing: 0.5px; }
+
+    /* Mobile booking cards */
+    .booking-cards-mobile { display: none; }
+    @media (max-width: 640px) {
+      .desktop-table-view { display: none; }
+      .booking-cards-mobile { display: grid; grid-template-columns: 1fr; gap: 12px; }
+    }
+    .booking-card-item {
+      background: #15122e;
+      border: 1px solid #2e2854;
+      border-radius: 14px;
+      padding: 14px;
+    }
+    .booking-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+    }
+    .pass-code-pill {
+      font-size: 0.85rem;
+      font-weight: 800;
+      color: #00f0ff;
+      background: rgba(0, 240, 255, 0.12);
+      border: 1px solid rgba(0, 240, 255, 0.3);
+      padding: 3px 8px;
+      border-radius: 8px;
+      font-family: monospace;
+    }
+    .quick-contact-btn {
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-size: 0.78rem;
+      padding: 4px 10px;
+      border-radius: 999px;
+      text-decoration: none;
+      min-height: 32px;
+    }
+    .btn-tel { background: rgba(0, 240, 255, 0.15); color: #00f0ff; border: 1px solid rgba(0, 240, 255, 0.3); }
+    .btn-wa { background: rgba(37, 211, 102, 0.15); color: #25d366; border: 1px solid rgba(37, 211, 102, 0.3); }
+    .btn-ig { background: rgba(225, 48, 108, 0.15); color: #e1306c; border: 1px solid rgba(225, 48, 108, 0.3); }
+
+    /* Venue cards */
     .venue-card {
       background: #100e21;
       border: 1px solid #2b274c;
-      border-radius: 18px;
+      border-radius: 16px;
       overflow: hidden;
       display: flex;
       flex-direction: column;
       transition: all 0.2s ease;
     }
-    .venue-card:hover {
-      border-color: #00f0ff88;
-      box-shadow: 0 4px 20px rgba(0, 240, 255, 0.08);
-    }
     .venue-card-media {
       position: relative;
-      height: 130px;
+      height: 120px;
       background: #18152e;
       overflow: hidden;
     }
@@ -110,66 +408,103 @@
       flex-direction: column;
       flex: 1;
     }
-    .table-wrap { overflow-x: auto; }
     [hidden] { display: none !important; }
   </style>
 </head>
 <body>
+  <!-- OWNER LOGIN VIEW -->
   <div id="loginView" class="login-wrap">
     <form id="loginForm" class="card">
-      <h1>Owner login</h1>
-      <p class="muted">Add flyers and set couple and stag ticket prices.</p>
-      <label for="username">Username</label>
-      <input id="username" name="username" autocomplete="username" required />
-      <label for="password">Password</label>
-      <input id="password" name="password" type="password" autocomplete="current-password" required />
+      <img src="assets/images/logo.png?v=2" alt="Pub Scene" class="login-header-logo" />
+      <h1 style="text-align: center; font-size: 1.4rem;">Owner Login</h1>
+      <p class="muted" style="text-align: center; margin-top: 4px;">Manage club events, customize pass types, prices & inspect bookings.</p>
+      
+      <label for="username"><i class="fa-solid fa-user text-xs mr-1"></i> Username</label>
+      <input id="username" name="username" autocomplete="username" placeholder="Enter username" required />
+      
+      <label for="password"><i class="fa-solid fa-lock text-xs mr-1"></i> Password</label>
+      <input id="password" name="password" type="password" autocomplete="current-password" placeholder="••••••••" required />
+      
       <p id="loginError" class="error"></p>
-      <button class="primary" type="submit">Log in</button>
+      <button class="primary" type="submit" style="width: 100%; min-height: 48px; margin-top: 6px;">
+        <i class="fa-solid fa-right-to-bracket"></i> Log In
+      </button>
     </form>
   </div>
 
+  <!-- MAIN OWNER PANEL VIEW -->
   <div id="appView" hidden>
     <header>
-      <div>
-        <h1 class="flex items-center gap-2"><img src="assets/images/logo.png?v=2" alt="" class="h-10 w-10 rounded-full object-cover" /> Owner panel</h1>
-        <a href="index.html">View website</a>
+      <div class="brand-wrap">
+        <img src="assets/images/logo.png?v=2" alt="Pub Scene" class="brand-logo" />
+        <div class="brand-text">
+          <h1>Owner Panel</h1>
+          <a href="index.html" class="brand-link" target="_blank"><i class="fa-solid fa-arrow-up-right-from-square text-[10px]"></i> View website</a>
+        </div>
       </div>
-      <button id="logoutBtn" class="ghost" type="button">Log out</button>
+      <button id="logoutBtn" class="ghost" type="button" style="padding: 8px 14px; font-size: 0.85rem;">
+        <i class="fa-solid fa-power-off"></i> <span>Log out</span>
+      </button>
     </header>
-    <main>
-      <div class="tabs" role="tablist">
-        <button type="button" class="ghost" data-tab="flyers" aria-selected="true">Flyers</button>
-        <button type="button" class="ghost" data-tab="editor" aria-selected="false">Add flyer</button>
-        <button type="button" class="ghost" data-tab="venues" aria-selected="false">Venues</button>
-        <button type="button" class="ghost" data-tab="venue-editor" aria-selected="false">Add venue</button>
-        <button type="button" class="ghost" data-tab="bookings" aria-selected="false">Bookings</button>
-        <button type="button" class="ghost" data-tab="messages" aria-selected="false">Messages</button>
-      </div>
 
+    <!-- HORIZONTALLY SCROLLABLE TOUCH TABS -->
+    <div class="tabs-wrapper">
+      <main>
+        <div class="tabs" role="tablist">
+          <button type="button" class="ghost" data-tab="flyers" aria-selected="true">
+            <i class="fa-solid fa-ticket"></i> Flyers
+          </button>
+          <button type="button" class="ghost" data-tab="editor" aria-selected="false">
+            <i class="fa-solid fa-circle-plus"></i> Add flyer
+          </button>
+          <button type="button" class="ghost" data-tab="venues" aria-selected="false">
+            <i class="fa-solid fa-location-dot"></i> Venues
+          </button>
+          <button type="button" class="ghost" data-tab="venue-editor" aria-selected="false">
+            <i class="fa-solid fa-plus"></i> Add venue
+          </button>
+          <button type="button" class="ghost" data-tab="bookings" aria-selected="false">
+            <i class="fa-solid fa-clipboard-list"></i> Bookings
+          </button>
+          <button type="button" class="ghost" data-tab="messages" aria-selected="false">
+            <i class="fa-solid fa-envelope"></i> Messages
+          </button>
+        </div>
+      </main>
+    </div>
+
+    <main>
+      <!-- FLYERS LIST PANEL -->
       <section id="flyers" class="panel active"></section>
 
+      <!-- FLYER EDITOR PANEL -->
       <section id="editor" class="panel">
         <form id="eventForm" class="card">
-          <h2 id="formTitle">Add a flyer</h2>
+          <h2 id="formTitle" style="font-size: 1.25rem;">Add a flyer</h2>
+          <p class="muted" style="margin-top: 2px;">Upload the flyer image, set details, and customize your ticket types and pricing.</p>
           <input type="hidden" id="eventId" />
-          <label for="flyerFile">Original flyer photo</label>
+          
+          <label for="flyerFile"><i class="fa-solid fa-image text-xs mr-1"></i> Original flyer photo</label>
           <input id="flyerFile" type="file" accept="image/jpeg,image/png,image/webp" />
           <img id="flyerPreview" class="preview" alt="" hidden />
-          <label for="eventName">Event name</label>
-          <input id="eventName" required placeholder="City Showdown ft. Shubz" />
+
+          <label for="eventName"><i class="fa-solid fa-music text-xs mr-1"></i> Event name</label>
+          <input id="eventName" required placeholder="e.g. City Showdown ft. Shubz" />
+
           <div class="row two">
             <div>
-              <label for="eventDate">Date and time</label>
+              <label for="eventDate"><i class="fa-regular fa-calendar text-xs mr-1"></i> Date and time</label>
               <input id="eventDate" required placeholder="Sat, 12 Sep • 8:00 PM" />
             </div>
             <div>
-              <label for="eventVenue">Venue</label>
+              <label for="eventVenue"><i class="fa-solid fa-champagne-glasses text-xs mr-1"></i> Venue</label>
               <input id="eventVenue" required placeholder="Raasta, Nagpur" />
             </div>
           </div>
+
           <div class="row two">
             <div>
-              <label for="eventArea">Area</label>
+              <label for="eventArea"><i class="fa-solid fa-city text-xs mr-1"></i> Area</label>
               <select id="eventArea">
                 <option value="nagpur">Nagpur</option>
                 <option value="mumbai">Mumbai</option>
@@ -184,7 +519,7 @@
               </select>
             </div>
             <div>
-              <label for="eventCategory">Category</label>
+              <label for="eventCategory"><i class="fa-solid fa-tags text-xs mr-1"></i> Category</label>
               <select id="eventCategory">
                 <option value="club_nights">Club nights</option>
                 <option value="concerts">Concerts</option>
@@ -193,79 +528,148 @@
               </select>
             </div>
           </div>
-          <div class="row two">
-            <div>
-              <label for="couplePrice">Couple ticket price (₹)</label>
-              <input id="couplePrice" type="number" min="0" step="1" value="0" required />
+
+          <!-- DYNAMIC TICKET & PASS TYPES CONFIGURATION (EDITABLE BY OWNER) -->
+          <div class="ticket-config-card">
+            <div class="ticket-config-header">
+              <span class="ticket-config-icon">🎟️</span>
+              <div>
+                <h3 class="ticket-config-title">Customize Ticket & Pass Types</h3>
+                <p class="ticket-config-sub">Edit the ticket name (e.g. Stag with full cover, On table, VIP Table), subtitle, and price for this event.</p>
+              </div>
             </div>
-            <div>
-              <label for="stagPrice">Stag ticket price (₹)</label>
-              <input id="stagPrice" type="number" min="0" step="1" value="0" required />
+
+            <!-- Pass 1 Customizer -->
+            <div class="pass-type-block">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+                <span class="pass-type-badge badge-pass1"><i class="fa-solid fa-user-group text-[10px]"></i> Pass 1</span>
+                <span class="hint" style="margin:0;">Standard / Couple</span>
+              </div>
+              <div class="row two">
+                <div>
+                  <label for="pass1Title" style="margin-top:4px;">Ticket Name / Title</label>
+                  <input id="pass1Title" placeholder="e.g. Couple pass, VIP Table" value="Couple pass" />
+                  <span class="hint">Shown on booking modal & pass receipt</span>
+                </div>
+                <div>
+                  <label for="pass1Desc" style="margin-top:4px;">Subtitle / Note</label>
+                  <input id="pass1Desc" placeholder="e.g. Entry for 2, Full cover included" value="Entry for 2" />
+                  <span class="hint">Short description under the pass name</span>
+                </div>
+              </div>
+              <div style="margin-top: 8px;">
+                <label for="couplePrice" style="margin-top:4px;">Pass 1 Price (₹)</label>
+                <input id="couplePrice" type="number" min="0" step="1" value="0" placeholder="499" required />
+              </div>
+            </div>
+
+            <!-- Pass 2 Customizer -->
+            <div class="pass-type-block">
+              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
+                <span class="pass-type-badge badge-pass2"><i class="fa-solid fa-user text-[10px]"></i> Pass 2</span>
+                <span class="hint" style="margin:0;">Stag / Table / Custom</span>
+              </div>
+              <div class="row two">
+                <div>
+                  <label for="pass2Title" style="margin-top:4px;">Ticket Name / Title</label>
+                  <input id="pass2Title" placeholder="e.g. Stag pass, Stag with Full Cover, On Table" value="Stag pass" />
+                  <span class="hint">Customizable ticket category</span>
+                </div>
+                <div>
+                  <label for="pass2Desc" style="margin-top:4px;">Subtitle / Note</label>
+                  <input id="pass2Desc" placeholder="e.g. Single entry, Full cover on table" value="Single entry" />
+                  <span class="hint">Short description under the pass name</span>
+                </div>
+              </div>
+              <div style="margin-top: 8px;">
+                <label for="stagPrice" style="margin-top:4px;">Pass 2 Price (₹)</label>
+                <input id="stagPrice" type="number" min="0" step="1" value="0" placeholder="999" required />
+              </div>
             </div>
           </div>
+
           <div class="row two">
             <div>
-              <label for="lastBookingDate">Last date to book</label>
+              <label for="lastBookingDate"><i class="fa-regular fa-clock text-xs mr-1"></i> Last date to book</label>
               <input id="lastBookingDate" type="date" />
             </div>
             <div>
-              <label for="offerText">Short line on the card</label>
-              <input id="offerText" placeholder="Bollywood and commercial night" />
+              <label for="offerText"><i class="fa-solid fa-tag text-xs mr-1"></i> Short line on the card</label>
+              <input id="offerText" placeholder="e.g. Bollywood & commercial night" />
             </div>
           </div>
-          <label for="badge">Artist label</label>
-          <input id="badge" placeholder="SHUBZ" />
+
+          <label for="badge"><i class="fa-solid fa-award text-xs mr-1"></i> Artist label / Badge</label>
+          <input id="badge" placeholder="e.g. SHUBZ or SPECIAL EVENT" />
+
           <p id="formError" class="error"></p>
+
           <div class="actions">
-            <button class="primary" type="submit">Save flyer</button>
-            <button class="ghost" id="cancelEdit" type="button">Clear</button>
+            <button class="primary" type="submit">
+              <i class="fa-solid fa-check"></i> Save Flyer
+            </button>
+            <button class="ghost" id="cancelEdit" type="button">
+              <i class="fa-solid fa-rotate-left"></i> Clear Form
+            </button>
           </div>
         </form>
       </section>
 
+      <!-- VENUES LIST PANEL -->
       <section id="venues" class="panel">
         <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:14px; flex-wrap:wrap; gap:10px;">
           <div>
             <h2 style="font-size:1.25rem; margin:0; color:#fff;">Nagpur Venues</h2>
             <p class="muted" style="margin:4px 0 0; font-size:0.85rem;">Manage partner restaurants, clubs & lounges visible on the website.</p>
           </div>
-          <button type="button" class="primary" id="openAddVenueBtn" style="font-size:14px; padding:8px 18px; min-height:40px;">+ Add New Venue</button>
+          <button type="button" class="primary" id="openAddVenueBtn" style="font-size:14px; padding:8px 18px; min-height:42px;">
+            <i class="fa-solid fa-plus"></i> Add New Venue
+          </button>
         </div>
         <div id="venuesList" class="flyer-list"></div>
       </section>
 
+      <!-- VENUE EDITOR PANEL -->
       <section id="venue-editor" class="panel">
         <form id="venueForm" class="card">
-          <h2 id="venueFormTitle">Add a venue</h2>
-          <p class="muted">Add or update a venue with cover ambiance photos and address details.</p>
+          <h2 id="venueFormTitle" style="font-size: 1.25rem;">Add a venue</h2>
+          <p class="muted" style="margin-top: 2px;">Add or update a venue with cover ambiance photos and address details.</p>
           <input type="hidden" id="venueId" />
           
-          <label for="venueCoverFile">Cover Photo (Large Banner / Ambiance Photo)</label>
+          <label for="venueCoverFile"><i class="fa-solid fa-image text-xs mr-1"></i> Cover Photo (Large Banner / Ambiance)</label>
           <input id="venueCoverFile" type="file" accept="image/jpeg,image/png,image/webp" />
           <img id="venueCoverPreview" class="preview" alt="Venue Cover Preview" hidden style="max-height:160px; object-fit:cover; width:100%; border-radius:12px; margin-top:8px;" />
           
-          <label for="venueLogoFile">Logo / Thumbnail Photo</label>
+          <label for="venueLogoFile"><i class="fa-solid fa-camera text-xs mr-1"></i> Logo / Thumbnail Photo</label>
           <input id="venueLogoFile" type="file" accept="image/jpeg,image/png,image/webp" />
           <img id="venueLogoPreview" class="preview" alt="Venue Logo Preview" hidden style="width:64px;height:64px;border-radius:12px;object-fit:cover;margin-top:8px;" />
 
-          <label for="venueNameInput">Venue Name</label>
+          <label for="venueNameInput"><i class="fa-solid fa-building text-xs mr-1"></i> Venue Name</label>
           <input id="venueNameInput" required placeholder="e.g. Raasta, Nagpur or Agent Jacks" />
           
-          <label for="venueLocationInput">Full Address / Location in Nagpur</label>
+          <label for="venueLocationInput"><i class="fa-solid fa-map-pin text-xs mr-1"></i> Full Address / Location</label>
           <input id="venueLocationInput" required placeholder="e.g. West High Court Road, Dharampeth, Nagpur, Maharashtra 440010" />
 
           <p id="venueFormError" class="error"></p>
           <div class="actions">
-            <button class="primary" type="submit">Save venue</button>
-            <button class="ghost" id="cancelVenueEdit" type="button">Clear</button>
+            <button class="primary" type="submit">
+              <i class="fa-solid fa-check"></i> Save Venue
+            </button>
+            <button class="ghost" id="cancelVenueEdit" type="button">
+              <i class="fa-solid fa-rotate-left"></i> Clear Form
+            </button>
           </div>
         </form>
       </section>
 
+      <!-- BOOKINGS PANEL (DESKTOP TABLE + MOBILE CARDS) -->
       <section id="bookings" class="panel"></section>
+
+      <!-- MESSAGES PANEL -->
       <section id="messages" class="panel"></section>
     </main>
   </div>
+
   <script src="assets/js/admin.js"></script>
 </body>
 </html>

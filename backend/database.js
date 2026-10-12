@@ -106,6 +106,18 @@ if (!eventColumns.includes('couple_price')) {
 if (!eventColumns.includes('last_booking_date')) {
   db.exec('ALTER TABLE events ADD COLUMN last_booking_date TEXT');
 }
+if (!eventColumns.includes('pass1_title')) {
+  db.exec("ALTER TABLE events ADD COLUMN pass1_title TEXT DEFAULT 'Couple pass'");
+}
+if (!eventColumns.includes('pass1_desc')) {
+  db.exec("ALTER TABLE events ADD COLUMN pass1_desc TEXT DEFAULT 'Entry for 2'");
+}
+if (!eventColumns.includes('pass2_title')) {
+  db.exec("ALTER TABLE events ADD COLUMN pass2_title TEXT DEFAULT 'Stag pass'");
+}
+if (!eventColumns.includes('pass2_desc')) {
+  db.exec("ALTER TABLE events ADD COLUMN pass2_desc TEXT DEFAULT 'Single entry'");
+}
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS admin_sessions (
@@ -184,6 +196,10 @@ function mapEvent(row) {
     price: row.price,
     coverPrice: row.cover_price,
     couplePrice: row.couple_price == null ? 0 : row.couple_price,
+    pass1Title: row.pass1_title || 'Couple pass',
+    pass1Desc: row.pass1_desc || 'Entry for 2',
+    pass2Title: row.pass2_title || 'Stag pass',
+    pass2Desc: row.pass2_desc || 'Single entry',
     offerText: row.offer_text,
     image: row.image,
     badge: row.badge,
@@ -327,13 +343,20 @@ function saveEvent(event) {
   const coverPrice = Math.max(0, Number(event.coverPrice) || 0);
   const paid = [couplePrice, coverPrice].filter((amount) => amount > 0);
   const fromPrice = paid.length ? Math.min(...paid) : 0;
+  const pass1Title = String(event.pass1Title || 'Couple pass').trim();
+  const pass1Desc = String(event.pass1Desc || 'Entry for 2').trim();
+  const pass2Title = String(event.pass2Title || 'Stag pass').trim();
+  const pass2Desc = String(event.pass2Desc || 'Single entry').trim();
+
   db.prepare(`
     INSERT INTO events (
       id, name, venue_name, area_id, area_name, category, event_date,
-      price, cover_price, couple_price, offer_text, image, badge, last_booking_date
+      price, cover_price, couple_price, pass1_title, pass1_desc, pass2_title, pass2_desc,
+      offer_text, image, badge, last_booking_date
     ) VALUES (
       @id, @name, @venueName, @areaId, @areaName, @category, @date,
-      @price, @coverPrice, @couplePrice, @offerText, @image, @badge, @lastBookingDate
+      @price, @coverPrice, @couplePrice, @pass1Title, @pass1Desc, @pass2Title, @pass2Desc,
+      @offerText, @image, @badge, @lastBookingDate
     )
     ON CONFLICT(id) DO UPDATE SET
       name = excluded.name,
@@ -345,6 +368,10 @@ function saveEvent(event) {
       price = excluded.price,
       cover_price = excluded.cover_price,
       couple_price = excluded.couple_price,
+      pass1_title = excluded.pass1_title,
+      pass1_desc = excluded.pass1_desc,
+      pass2_title = excluded.pass2_title,
+      pass2_desc = excluded.pass2_desc,
       offer_text = excluded.offer_text,
       image = excluded.image,
       badge = excluded.badge,
@@ -360,6 +387,10 @@ function saveEvent(event) {
     price: fromPrice,
     coverPrice,
     couplePrice,
+    pass1Title,
+    pass1Desc,
+    pass2Title,
+    pass2Desc,
     offerText: event.offerText || '',
     image: event.image || '',
     badge: event.badge || '',

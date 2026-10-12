@@ -35,6 +35,10 @@ function openBookingModal(venueId) {
   setText('modalClubArea', `${venue.areaName || ''} • ${venue.venueName || ''}`);
   setText('modalClubOffer', venue.offerText || 'Exclusive entry pass');
   setText('modalEventDate', venue.date || '');
+  setText('pass1TitleDisplay', venue.pass1Title || 'Couple pass');
+  setText('pass1DescDisplay', venue.pass1Desc || 'Entry for 2');
+  setText('pass2TitleDisplay', venue.pass2Title || 'Stag pass');
+  setText('pass2DescDisplay', venue.pass2Desc || 'Single entry');
   setText('qty-couple', '1');
   setText('qty-stag', '0');
 
@@ -167,9 +171,12 @@ document.getElementById('confirmPassBtn')?.addEventListener('click', async () =>
       const codeNode = document.getElementById('qrPassCodeDisplay');
       if (codeNode) codeNode.textContent = `#${data.passCode || 'PUB-PASS'}`;
 
+      const pass1Name = (activeBookingVenue && activeBookingVenue.pass1Title) || 'Couple pass';
+      const pass2Name = (activeBookingVenue && activeBookingVenue.pass2Title) || 'Stag pass';
+
       const summaryParts = [];
-      if (quantities.couple > 0) summaryParts.push(`Couple: ${quantities.couple}`);
-      if (quantities.stag > 0) summaryParts.push(`Stag: ${quantities.stag}`);
+      if (quantities.couple > 0) summaryParts.push(`${pass1Name}: ${quantities.couple}`);
+      if (quantities.stag > 0) summaryParts.push(`${pass2Name}: ${quantities.stag}`);
       const passesSummary = summaryParts.join(', ') || '1 Pass';
 
       const summaryNode = document.getElementById('qrPassSummaryDisplay');
