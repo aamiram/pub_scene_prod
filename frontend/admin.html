@@ -233,6 +233,24 @@
       border-radius: 14px;
       padding: 14px;
       margin-top: 12px;
+      position: relative;
+    }
+    .remove-ticket-btn {
+      background: rgba(255, 51, 136, 0.12);
+      border: 1px solid rgba(255, 51, 136, 0.3);
+      color: #ff5599;
+      font-size: 12px !important;
+      min-height: 32px;
+      padding: 4px 10px;
+      border-radius: 8px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .remove-ticket-btn:hover {
+      background: rgba(255, 51, 136, 0.25);
     }
     .pass-type-badge {
       display: inline-flex;
@@ -533,58 +551,20 @@
           <div class="ticket-config-card">
             <div class="ticket-config-header">
               <span class="ticket-config-icon">🎟️</span>
-              <div>
+              <div style="flex:1;">
                 <h3 class="ticket-config-title">Customize Ticket & Pass Types</h3>
-                <p class="ticket-config-sub">Edit the ticket name (e.g. Stag with full cover, On table, VIP Table), subtitle, and price for this event.</p>
+                <p class="ticket-config-sub">Edit ticket names (e.g. Couple pass, Stag with full cover, On table, VIP Table), notes, and prices. You can add more ticket types below!</p>
               </div>
             </div>
 
-            <!-- Pass 1 Customizer -->
-            <div class="pass-type-block">
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
-                <span class="pass-type-badge badge-pass1"><i class="fa-solid fa-user-group text-[10px]"></i> Pass 1</span>
-                <span class="hint" style="margin:0;">Standard / Couple</span>
-              </div>
-              <div class="row two">
-                <div>
-                  <label for="pass1Title" style="margin-top:4px;">Ticket Name / Title</label>
-                  <input id="pass1Title" placeholder="e.g. Couple pass, VIP Table" value="Couple pass" />
-                  <span class="hint">Shown on booking modal & pass receipt</span>
-                </div>
-                <div>
-                  <label for="pass1Desc" style="margin-top:4px;">Subtitle / Note</label>
-                  <input id="pass1Desc" placeholder="e.g. Entry for 2, Full cover included" value="Entry for 2" />
-                  <span class="hint">Short description under the pass name</span>
-                </div>
-              </div>
-              <div style="margin-top: 8px;">
-                <label for="couplePrice" style="margin-top:4px;">Pass 1 Price (₹)</label>
-                <input id="couplePrice" type="number" min="0" step="1" value="0" placeholder="499" required />
-              </div>
-            </div>
+            <!-- Dynamic Ticket Types List -->
+            <div id="ticketTypesContainer" style="display:flex; flex-direction:column; gap:12px;"></div>
 
-            <!-- Pass 2 Customizer -->
-            <div class="pass-type-block">
-              <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 8px;">
-                <span class="pass-type-badge badge-pass2"><i class="fa-solid fa-user text-[10px]"></i> Pass 2</span>
-                <span class="hint" style="margin:0;">Stag / Table / Custom</span>
-              </div>
-              <div class="row two">
-                <div>
-                  <label for="pass2Title" style="margin-top:4px;">Ticket Name / Title</label>
-                  <input id="pass2Title" placeholder="e.g. Stag pass, Stag with Full Cover, On Table" value="Stag pass" />
-                  <span class="hint">Customizable ticket category</span>
-                </div>
-                <div>
-                  <label for="pass2Desc" style="margin-top:4px;">Subtitle / Note</label>
-                  <input id="pass2Desc" placeholder="e.g. Single entry, Full cover on table" value="Single entry" />
-                  <span class="hint">Short description under the pass name</span>
-                </div>
-              </div>
-              <div style="margin-top: 8px;">
-                <label for="stagPrice" style="margin-top:4px;">Pass 2 Price (₹)</label>
-                <input id="stagPrice" type="number" min="0" step="1" value="0" placeholder="999" required />
-              </div>
+            <!-- Add Another Ticket Type Button -->
+            <div style="margin-top: 14px;">
+              <button type="button" id="addTicketTypeBtn" class="ghost" style="width: 100%; border: 1.5px dashed #00f0ff88; color: #00f0ff; background: rgba(0, 240, 255, 0.05); padding: 12px; border-radius: 12px; font-weight: 700; display: flex; align-items: center; justify-content: center; gap: 8px;">
+                <i class="fa-solid fa-plus-circle"></i> + Add Another Ticket Type
+              </button>
             </div>
           </div>
 

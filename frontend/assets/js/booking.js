@@ -1,18 +1,30 @@
 // Booking state for the pass modal with PhonePe QR & WhatsApp verification.
 let activeBookingVenue = null;
-let quantities = {
-  couple: 1,
-  stag: 0
-};
+let activeTickets = [];
+let ticketQuantities = {};
 
 const API_BASE = window.location.protocol === 'file:' ? 'http://localhost:5000' : '';
 const WHATSAPP_NUMBER = '918855882926';
 
+function escapeHtml(value) {
+  return String(value ?? '')
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function changeTicketQty(idx, delta) {
+  if (ticketQuantities[idx] == null) ticketQuantities[idx] = 0;
+  ticketQuantities[idx] = Math.max(0, ticketQuantities[idx] + delta);
+  const qtyNode = document.getElementById(`qty-ticket-${idx}`);
+  if (qtyNode) qtyNode.textContent = String(ticketQuantities[idx]);
+}
+
+// For legacy inline changeQty calls
 function changeQty(type, delta) {
-  if (!quantities.hasOwnProperty(type)) return;
-  quantities[type] = Math.max(0, quantities[type] + delta);
-  const qtyNode = document.getElementById(`qty-${type}`);
-  if (qtyNode) qtyNode.textContent = String(quantities[type]);
+  if (type === 'couple') changeTicketQty(0, delta);
+  else if (type === 'stag') changeTicketQty(1, delta);
 }
 
 function openBookingModal(venueId) {
@@ -23,8 +35,15 @@ function openBookingModal(venueId) {
   }
 
   activeBookingVenue = venue;
-  quantities.couple = 1;
-  quantities.stag = 0;
+  activeTickets = Array.isArray(venue.tickets) && venue.tickets.length ? venue.tickets : [
+    { id: 't-1', name: venue.pass1Title || 'Couple pass', desc: venue.pass1Desc || 'Entry for 2', price: venue.couplePrice || 0 },
+    { id: 't-2', name: venue.pass2Title || 'Stag pass', desc: venue.pass2Desc || 'Single entry', price: venue.coverPrice || 0 }
+  ];
+
+  ticketQuantities = {};
+  activeTickets.forEach((_, idx) => {
+    ticketQuantities[idx] = idx === 0 ? 1 : 0;
+  });
 
   const setText = (id, value) => {
     const node = document.getElementById(id);
@@ -35,12 +54,27 @@ function openBookingModal(venueId) {
   setText('modalClubArea', `${venue.areaName || ''} • ${venue.venueName || ''}`);
   setText('modalClubOffer', venue.offerText || 'Exclusive entry pass');
   setText('modalEventDate', venue.date || '');
-  setText('pass1TitleDisplay', venue.pass1Title || 'Couple pass');
-  setText('pass1DescDisplay', venue.pass1Desc || 'Entry for 2');
-  setText('pass2TitleDisplay', venue.pass2Title || 'Stag pass');
-  setText('pass2DescDisplay', venue.pass2Desc || 'Single entry');
-  setText('qty-couple', '1');
-  setText('qty-stag', '0');
+
+  // Render all ticket options into modalPassesContainer
+  const passesContainer = document.getElementById('modalPassesContainer');
+  if (passesContainer) {
+    passesContainer.innerHTML = activeTickets.map((t, idx) => `
+      <div class="flex items-center justify-between bg-[#18152e] border border-purple-800/40 rounded px-3 py-2.5">
+        <div class="pr-2 flex-1">
+          <div class="flex items-center gap-1.5 flex-wrap">
+            <p class="text-xs text-white font-semibold">${escapeHtml(t.name)}</p>
+            <span class="text-[11px] font-bold text-[#00f0ff]">₹${Number(t.price || 0)}</span>
+          </div>
+          ${t.desc ? `<p class="text-[10px] text-gray-400 mt-0.5">${escapeHtml(t.desc)}</p>` : ''}
+        </div>
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <button type="button" onclick="changeTicketQty(${idx}, -1)" class="w-7 h-7 rounded-full bg-[#121124] border border-[#2b274c] text-white font-bold">−</button>
+          <span id="qty-ticket-${idx}" class="text-xs font-bold text-white w-5 text-center">${ticketQuantities[idx]}</span>
+          <button type="button" onclick="changeTicketQty(${idx}, 1)" class="w-7 h-7 rounded-full bg-[#121124] border border-[#2b274c] text-white font-bold">+</button>
+        </div>
+      </div>
+    `).join('');
+  }
 
   ['custName', 'custAge', 'custInstagram', 'custPhone', 'custEmail'].forEach((id) => {
     const field = document.getElementById(id);
@@ -70,8 +104,9 @@ function closeModal() {
 }
 
 document.getElementById('continueToDetailsBtn')?.addEventListener('click', () => {
-  if (quantities.couple === 0 && quantities.stag === 0) {
-    alert('Please choose at least 1 pass (couple or stag).');
+  const total = Object.values(ticketQuantities).reduce((sum, q) => sum + (Number(q) || 0), 0);
+  if (total < 1) {
+    alert('Please choose at least 1 pass.');
     return;
   }
   document.getElementById('guestDetails')?.classList.remove('hidden');
@@ -107,18 +142,31 @@ document.getElementById('confirmPassBtn')?.addEventListener('click', async () =>
     document.getElementById('custPhone')?.focus();
     return;
   }
-  if (quantities.couple === 0 && quantities.stag === 0) {
-    alert('Please choose at least 1 pass (couple or stag).');
+
+  const totalPasses = Object.values(ticketQuantities).reduce((sum, q) => sum + (Number(q) || 0), 0);
+  if (totalPasses < 1) {
+    alert('Please choose at least 1 pass.');
     return;
   }
+
+  const summaryParts = [];
+  activeTickets.forEach((t, idx) => {
+    const q = ticketQuantities[idx] || 0;
+    if (q > 0) {
+      summaryParts.push(`${t.name}: ${q}`);
+    }
+  });
+  const passesSummary = summaryParts.join(', ') || '1 Pass';
 
   const payload = {
     user: { fullName, phone, instagram, age, email },
     booking: {
       venueId: activeBookingVenue.id,
       venueName: activeBookingVenue.name,
-      couplePasses: quantities.couple,
-      stagPasses: quantities.stag
+      totalPasses,
+      couplePasses: ticketQuantities[0] || 0,
+      stagPasses: ticketQuantities[1] || 0,
+      passesSummary
     }
   };
 
@@ -157,7 +205,7 @@ document.getElementById('confirmPassBtn')?.addEventListener('click', async () =>
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || 'Server error occurred');
 
-    // Ensure the futuristic generation animation displays for at least 1.6s
+    // Ensure futuristic generation animation displays for at least 1.6s
     const elapsed = Date.now() - startTime;
     const remainingDelay = Math.max(0, 1600 - elapsed);
     if (progressNode) progressNode.style.width = '100%';
@@ -170,14 +218,6 @@ document.getElementById('confirmPassBtn')?.addEventListener('click', async () =>
       // Populate Pass Code and Summary
       const codeNode = document.getElementById('qrPassCodeDisplay');
       if (codeNode) codeNode.textContent = `#${data.passCode || 'PUB-PASS'}`;
-
-      const pass1Name = (activeBookingVenue && activeBookingVenue.pass1Title) || 'Couple pass';
-      const pass2Name = (activeBookingVenue && activeBookingVenue.pass2Title) || 'Stag pass';
-
-      const summaryParts = [];
-      if (quantities.couple > 0) summaryParts.push(`${pass1Name}: ${quantities.couple}`);
-      if (quantities.stag > 0) summaryParts.push(`${pass2Name}: ${quantities.stag}`);
-      const passesSummary = summaryParts.join(', ') || '1 Pass';
 
       const summaryNode = document.getElementById('qrPassSummaryDisplay');
       if (summaryNode) {
