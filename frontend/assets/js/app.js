@@ -51,11 +51,7 @@ function renderEvents(items) {
   const today = new Date().toISOString().split('T')[0];
   grid.innerHTML = items.map((event) => {
     const isClosed = event.lastBookingDate && today > event.lastBookingDate;
-    const couplePrice = Number(event.couplePrice || 0);
-    const stagPrice = Number(event.coverPrice || 0);
-    const priceDisplay = (couplePrice === 0 && stagPrice === 0) 
-      ? '<span class="text-green-400 font-bold">Free Entry</span>'
-      : `<span class="text-gray-300">Couple <strong class="text-white">₹${couplePrice}</strong></span> · <span class="text-gray-300">Stag <strong class="text-white">₹${stagPrice}</strong></span>`;
+    const priceDisplay = '<span class="text-green-400 font-semibold flex items-center gap-1.5"><i class="fa-solid fa-ticket text-[11px]"></i>Digital Entry Pass</span>';
 
     return `
     <article class="bg-[#100e21] border border-[#2b274c] rounded-2xl overflow-hidden flex flex-col group hover:border-[#00f0ff]/60 transition-all duration-300 shadow-lg hover:shadow-[0_0_20px_rgba(0,240,255,0.15)]">
@@ -104,7 +100,7 @@ function renderEvents(items) {
 async function loadEvents() {
   const grid = document.getElementById('eventsGrid');
   if (grid) {
-    grid.innerHTML = '<div class="col-span-full text-center text-gray-400 py-12 text-sm"><i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2 text-[#00f0ff] block"></i>Loading live events in Nagpur...</div>';
+    grid.innerHTML = `<div class="col-span-full text-center text-gray-400 py-12 text-sm"><i class="fa-solid fa-circle-notch fa-spin text-2xl mb-2 text-[#00f0ff] block"></i>Loading live events in ${escapeHtml(areaLabel(activeArea))}...</div>`;
   }
 
   const params = new URLSearchParams();
@@ -141,7 +137,7 @@ function setActiveCategory(category) {
 
 function areaLabel(areaId) {
   const match = localities.find((area) => area.id === areaId);
-  return match ? match.name : 'Nagpur (All)';
+  return match ? match.name : 'Nagpur';
 }
 
 function openCollabModal() {
@@ -191,9 +187,10 @@ function bindInterface() {
   document.getElementById('cityDropdownMenu')?.addEventListener('click', (event) => {
     const button = event.target.closest('[data-area]');
     if (!button) return;
-    activeArea = button.dataset.area || 'all';
+    const selected = button.dataset.area || 'all';
+    activeArea = selected === 'nagpur' ? 'all' : selected;
     const label = document.getElementById('currentCityDisplay');
-    if (label) label.textContent = activeArea === 'all' ? 'Nagpur (All)' : areaLabel(activeArea);
+    if (label) label.textContent = areaLabel(activeArea);
     document.getElementById('cityDropdownMenu')?.classList.add('hidden');
     loadEvents();
   });
@@ -260,7 +257,7 @@ function bindInterface() {
     if (search1) search1.value = '';
     if (search2) search2.value = '';
     const label = document.getElementById('currentCityDisplay');
-    if (label) label.textContent = 'Nagpur (All)';
+    if (label) label.textContent = 'Nagpur';
     setActiveCategory('all');
     loadEvents();
     document.getElementById('events')?.scrollIntoView({ behavior: 'smooth' });

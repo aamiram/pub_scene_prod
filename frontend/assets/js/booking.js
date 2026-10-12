@@ -1,4 +1,4 @@
-// Booking state for the pass modal.
+// Booking state for the pass modal with PhonePe QR & WhatsApp verification.
 let activeBookingVenue = null;
 let quantities = {
   couple: 1,
@@ -6,23 +6,13 @@ let quantities = {
 };
 
 const API_BASE = window.location.protocol === 'file:' ? 'http://localhost:5000' : '';
+const WHATSAPP_NUMBER = '918855882926';
 
 function changeQty(type, delta) {
   if (!quantities.hasOwnProperty(type)) return;
   quantities[type] = Math.max(0, quantities[type] + delta);
   const qtyNode = document.getElementById(`qty-${type}`);
   if (qtyNode) qtyNode.textContent = String(quantities[type]);
-  updateSubtotal();
-}
-
-function updateSubtotal() {
-  if (!activeBookingVenue) return 0;
-  const coupleCost = quantities.couple * Number(activeBookingVenue.couplePrice || 0);
-  const stagCost = quantities.stag * Number(activeBookingVenue.coverPrice || 0);
-  const total = coupleCost + stagCost;
-  const totalNode = document.getElementById('bookingTotalDisplay');
-  if (totalNode) totalNode.textContent = `₹${total}`;
-  return total;
 }
 
 function openBookingModal(venueId) {
@@ -42,31 +32,30 @@ function openBookingModal(venueId) {
   };
 
   setText('modalClubName', venue.name);
-  setText('modalClubArea', `${venue.areaName} • ${venue.venueName}`);
-  setText('modalClubOffer', venue.offerText);
+  setText('modalClubArea', `${venue.areaName || ''} • ${venue.venueName || ''}`);
+  setText('modalClubOffer', venue.offerText || 'Exclusive entry pass');
   setText('modalEventDate', venue.date || '');
   setText('qty-couple', '1');
   setText('qty-stag', '0');
-  const couplePrice = Number(venue.couplePrice || 0);
-  setText('couplePriceLabel', couplePrice > 0 ? `₹${couplePrice} each` : 'Free entry');
-  setText('stagPriceLabel', `₹${Number(venue.coverPrice || 0)} each`);
 
-  updateSubtotal();
   ['custName', 'custAge', 'custInstagram', 'custPhone'].forEach((id) => {
     const field = document.getElementById(id);
     if (field) field.value = '';
   });
+
+  // Reset stage views
+  document.getElementById('modalBookingForm')?.classList.remove('hidden');
+  document.getElementById('modalGeneratingQR')?.classList.add('hidden');
+  document.getElementById('modalPaymentQR')?.classList.add('hidden');
   document.getElementById('guestDetails')?.classList.add('hidden');
   document.getElementById('continueToDetailsBtn')?.classList.remove('hidden');
 
   const submitBtn = document.getElementById('confirmPassBtn');
   if (submitBtn) {
     submitBtn.disabled = false;
-    submitBtn.textContent = 'Claim Digital Entry Pass';
+    submitBtn.innerHTML = '<i class="fa-solid fa-shield-halved text-xs mr-2"></i><span>Proceed to Secure Pay</span>';
   }
 
-  document.getElementById('modalBookingForm')?.classList.remove('hidden');
-  document.getElementById('modalPassSuccess')?.classList.add('hidden');
   document.getElementById('bookingModal')?.classList.remove('hidden');
   document.body.classList.add('overflow-hidden');
 }
@@ -74,22 +63,6 @@ function openBookingModal(venueId) {
 function closeModal() {
   document.getElementById('bookingModal')?.classList.add('hidden');
   document.body.classList.remove('overflow-hidden');
-}
-
-function renderDigitalPass(passCode, venueName) {
-  const qrUrl = `https://api.qrserver.com/v1/create-qr-code/?size=150x150&data=${encodeURIComponent('PUBSCENE_VALID_' + passCode)}`;
-  const setText = (id, value) => {
-    const node = document.getElementById(id);
-    if (node) node.textContent = value;
-  };
-
-  setText('passCodeDisplay', passCode);
-  setText('passVenueDisplay', venueName);
-  const qr = document.getElementById('passQRCode');
-  if (qr) qr.src = qrUrl;
-
-  document.getElementById('modalBookingForm')?.classList.add('hidden');
-  document.getElementById('modalPassSuccess')?.classList.remove('hidden');
 }
 
 document.getElementById('continueToDetailsBtn')?.addEventListener('click', () => {
@@ -104,7 +77,7 @@ document.getElementById('continueToDetailsBtn')?.addEventListener('click', () =>
 
 document.getElementById('confirmPassBtn')?.addEventListener('click', async () => {
   if (!activeBookingVenue) {
-    alert('Choose an event before claiming a pass.');
+    alert('Choose an event before proceeding.');
     return;
   }
 
@@ -135,21 +108,40 @@ document.getElementById('confirmPassBtn')?.addEventListener('click', async () =>
     return;
   }
 
-  const totalAmount = updateSubtotal();
   const payload = {
     user: { fullName, phone, instagram, age },
     booking: {
       venueId: activeBookingVenue.id,
       venueName: activeBookingVenue.name,
       couplePasses: quantities.couple,
-      stagPasses: quantities.stag,
-      totalAmount
+      stagPasses: quantities.stag
     }
   };
 
-  submitBtn.disabled = true;
-  const originalLabel = submitBtn.textContent;
-  submitBtn.textContent = 'Confirming pass...';
+  // Switch to Generating Animation View
+  document.getElementById('modalBookingForm')?.classList.add('hidden');
+  document.getElementById('modalGeneratingQR')?.classList.remove('hidden');
+  document.getElementById('modalPaymentQR')?.classList.add('hidden');
+
+  const titleNode = document.getElementById('genStatusTitle');
+  const subNode = document.getElementById('genStatusSubtitle');
+  const progressNode = document.getElementById('genProgressBar');
+
+  if (titleNode) titleNode.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-[#00f0ff] text-sm mr-2"></i><span>Generating QR for Secure Pay...</span>';
+  if (subNode) subNode.textContent = 'Securing UPI payment session...';
+  if (progressNode) progressNode.style.width = '25%';
+
+  const animStep1 = setTimeout(() => {
+    if (subNode) subNode.textContent = 'Allocating pass code and venue reservation...';
+    if (progressNode) progressNode.style.width = '65%';
+  }, 500);
+
+  const animStep2 = setTimeout(() => {
+    if (subNode) subNode.textContent = 'Binding PhonePe merchant QR for secure pay...';
+    if (progressNode) progressNode.style.width = '90%';
+  }, 1100);
+
+  const startTime = Date.now();
 
   try {
     const res = await fetch(`${API_BASE}/api/create-pass-order`, {
@@ -161,68 +153,55 @@ document.getElementById('confirmPassBtn')?.addEventListener('click', async () =>
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || 'Server error occurred');
 
-    if (data.isFree) {
-      renderDigitalPass(data.passCode, data.venueName || activeBookingVenue.name);
-      return;
-    }
+    // Ensure the futuristic generation animation displays for at least 1.6s
+    const elapsed = Date.now() - startTime;
+    const remainingDelay = Math.max(0, 1600 - elapsed);
+    if (progressNode) progressNode.style.width = '100%';
 
-    if (typeof Razorpay !== 'function' || !data.keyId || !data.orderId) {
-      throw new Error('Payment checkout is unavailable. Please try again.');
-    }
+    setTimeout(() => {
+      // Transition from Generating Animation to Payment QR Stage
+      document.getElementById('modalGeneratingQR')?.classList.add('hidden');
+      document.getElementById('modalPaymentQR')?.classList.remove('hidden');
 
-    const options = {
-      key: data.keyId,
-      amount: data.amount,
-      currency: data.currency,
-      name: 'PUB SCENE NAGPUR',
-      description: `Entry pass for ${activeBookingVenue.name}`,
-      order_id: data.orderId,
-      prefill: {
-        name: fullName,
-        contact: phone || ''
-      },
-      theme: { color: '#ff007f' },
-      modal: {
-        ondismiss: function () {
-          submitBtn.disabled = false;
-          submitBtn.textContent = originalLabel;
-        }
-      },
-      handler: async function (response) {
-        const verifyRes = await fetch(`${API_BASE}/api/verify-payment`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            razorpay_order_id: response.razorpay_order_id,
-            razorpay_payment_id: response.razorpay_payment_id,
-            razorpay_signature: response.razorpay_signature,
-            passCode: data.passCode
-          })
-        });
-        const verifyResult = await verifyRes.json().catch(() => ({}));
-        if (verifyResult.status === 'success') {
-          renderDigitalPass(data.passCode, activeBookingVenue.name);
-        } else {
-          alert(verifyResult.message || 'Payment verification failed. Please contact support.');
-        }
-        submitBtn.disabled = false;
-        submitBtn.textContent = originalLabel;
+      // Populate Pass Code and Summary
+      const codeNode = document.getElementById('qrPassCodeDisplay');
+      if (codeNode) codeNode.textContent = `#${data.passCode || 'PUB-PASS'}`;
+
+      const summaryNode = document.getElementById('qrPassSummaryDisplay');
+      if (summaryNode) {
+        const parts = [];
+        if (quantities.couple > 0) parts.push(`Couple: ${quantities.couple}`);
+        if (quantities.stag > 0) parts.push(`Stag: ${quantities.stag}`);
+        summaryNode.textContent = parts.join(', ') || '1 Pass';
       }
-    };
 
-    const rzp = new Razorpay(options);
-    rzp.on('payment.failed', function (resp) {
-      const reason = resp?.error?.description || 'Payment was not completed or was cancelled';
-      alert(`${reason}. If any money was deducted, it will be refunded automatically by your bank within 5 to 7 working days. For help, contact support@pubscene.in.`);
-      submitBtn.disabled = false;
-      submitBtn.textContent = originalLabel;
-    });
-    rzp.open();
+      // Pre-filled WhatsApp confirmation message
+      const eventName = data.venueName || activeBookingVenue.name;
+      const contactInfo = phone || instagram || 'Guest';
+      const passText = `Couple: ${quantities.couple}, Stag: ${quantities.stag}`;
+
+      const waText = 
+        `Hi Pub Scene! I have completed payment for *${eventName}*.\n\n` +
+        `🎫 *Pass Code:* #${data.passCode}\n` +
+        `👤 *Name:* ${fullName}\n` +
+        `📱 *Contact:* ${contactInfo}\n` +
+        `👥 *Passes:* ${passText}\n\n` +
+        `I have attached my payment screenshot above. Please verify and send my tickets!`;
+
+      const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waText)}`;
+      const waBtn = document.getElementById('whatsappRedirectBtn');
+      if (waBtn) {
+        waBtn.href = waUrl;
+      }
+    }, remainingDelay);
+
   } catch (err) {
+    clearTimeout(animStep1);
+    clearTimeout(animStep2);
     console.error(err);
-    alert('Unable to process pass: ' + err.message);
-    submitBtn.disabled = false;
-    submitBtn.textContent = originalLabel;
+    alert('Unable to generate payment QR: ' + err.message);
+    document.getElementById('modalGeneratingQR')?.classList.add('hidden');
+    document.getElementById('modalBookingForm')?.classList.remove('hidden');
   }
 });
 

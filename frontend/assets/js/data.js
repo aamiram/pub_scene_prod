@@ -1,11 +1,11 @@
-// Nagpur localities used by the city filter.
+// Cities used by the city filter.
 const localities = [
-  { id: 'all', name: 'All Areas' },
-  { id: 'dharampeth', name: 'Dharampeth' },
-  { id: 'civil_lines', name: 'Civil Lines' },
-  { id: 'wardha_rd', name: 'Wardha Road' },
-  { id: 'sadar', name: 'Sadar' },
-  { id: 'raasta', name: 'Raasta' }
+  { id: 'all', name: 'Nagpur' },
+  { id: 'mumbai', name: 'Mumbai' },
+  { id: 'goa', name: 'Goa' },
+  { id: 'pune', name: 'Pune' },
+  { id: 'nagpur', name: 'Nagpur' },
+  { id: 'bengaluru', name: 'Bengaluru' }
 ];
 
 // Fallback catalog if the API is unreachable. The server seeds the same records.

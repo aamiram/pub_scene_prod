@@ -11,8 +11,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet" />
 
-  <!-- Razorpay Checkout Library -->
-  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
 
   <style>
     :root {
@@ -66,6 +65,14 @@
     .btn-neon-primary:hover {
       box-shadow: 0 0 25px rgba(0, 240, 255, 0.7);
       transform: translateY(-1px);
+    }
+    @keyframes laserScan {
+      0% { top: 0%; opacity: 0.8; }
+      50% { top: 92%; opacity: 1; }
+      100% { top: 0%; opacity: 0.8; }
+    }
+    .animate-laser {
+      animation: laserScan 1.6s ease-in-out infinite;
     }
     .scrollbar-none::-webkit-scrollbar { display: none; }
     .scrollbar-none {
@@ -128,18 +135,17 @@
             <div class="relative">
               <button type="button" id="cityDropdownBtn" class="tap flex items-center gap-1.5 bg-[#121124] border border-[#2b274c] px-3 py-1.5 sm:py-2 rounded-full hover:border-[#00f0ff] text-xs">
                 <i class="fa-solid fa-location-dot text-[#ff007f]"></i>
-                <span id="currentCityDisplay" class="text-gray-200">Nagpur (All)</span>
+                <span id="currentCityDisplay" class="text-gray-200">Nagpur</span>
                 <i class="fa-solid fa-chevron-down text-[9px] text-gray-400"></i>
               </button>
 
               <!-- Dropdown Menu -->
               <div id="cityDropdownMenu" class="hidden absolute top-full mt-2 right-0 w-44 bg-[#100e21] border border-[#2b274c] rounded-xl shadow-2xl py-1 z-50">
-                <button type="button" data-area="all" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-[#1f1b3b]">All Nagpur</button>
-                <button type="button" data-area="dharampeth" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-[#1f1b3b]">Dharampeth</button>
-                <button type="button" data-area="civil_lines" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-[#1f1b3b]">Civil Lines</button>
-                <button type="button" data-area="wardha_rd" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-[#1f1b3b]">Wardha Road</button>
-                <button type="button" data-area="sadar" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-[#1f1b3b]">Sadar</button>
-                <button type="button" data-area="raasta" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-[#1f1b3b]">Raasta</button>
+                <button type="button" data-area="mumbai" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-[#1f1b3b]">Mumbai</button>
+                <button type="button" data-area="goa" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-[#1f1b3b]">Goa</button>
+                <button type="button" data-area="pune" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-[#1f1b3b]">Pune</button>
+                <button type="button" data-area="nagpur" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-[#1f1b3b]">Nagpur</button>
+                <button type="button" data-area="bengaluru" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-[#1f1b3b]">Bengaluru</button>
               </div>
             </div>
             
@@ -412,11 +418,11 @@
         <p class="text-[11px] text-gray-400" id="modalEventDate"></p>
         <p class="text-xs text-pink-400 mb-4" id="modalClubOffer">Couple entry free before 9:30 PM</p>
 
-        <div class="space-y-2 mb-3">
-          <div class="flex items-center justify-between bg-[#18152e] border border-purple-800/40 rounded px-3 py-2">
+        <div class="space-y-2 mb-4">
+          <div class="flex items-center justify-between bg-[#18152e] border border-purple-800/40 rounded px-3 py-2.5">
             <div>
               <p class="text-xs text-white font-semibold">Couple pass</p>
-              <p id="couplePriceLabel" class="text-[10px] text-gray-400">₹0 each</p>
+              <p class="text-[10px] text-[#00f0ff]">Entry for 2</p>
             </div>
             <div class="flex items-center gap-2">
               <button type="button" onclick="changeQty('couple', -1)" class="w-7 h-7 rounded-full bg-[#121124] border border-[#2b274c] text-white font-bold">−</button>
@@ -424,10 +430,10 @@
               <button type="button" onclick="changeQty('couple', 1)" class="w-7 h-7 rounded-full bg-[#121124] border border-[#2b274c] text-white font-bold">+</button>
             </div>
           </div>
-          <div class="flex items-center justify-between bg-[#18152e] border border-purple-800/40 rounded px-3 py-2">
+          <div class="flex items-center justify-between bg-[#18152e] border border-purple-800/40 rounded px-3 py-2.5">
             <div>
               <p class="text-xs text-white font-semibold">Stag pass</p>
-              <p id="stagPriceLabel" class="text-[10px] text-gray-400">₹0 each</p>
+              <p class="text-[10px] text-[#00f0ff]">Single entry</p>
             </div>
             <div class="flex items-center gap-2">
               <button type="button" onclick="changeQty('stag', -1)" class="w-7 h-7 rounded-full bg-[#121124] border border-[#2b274c] text-white font-bold">−</button>
@@ -435,11 +441,6 @@
               <button type="button" onclick="changeQty('stag', 1)" class="w-7 h-7 rounded-full bg-[#121124] border border-[#2b274c] text-white font-bold">+</button>
             </div>
           </div>
-        </div>
-
-        <div class="flex items-center justify-between text-xs mb-3">
-          <span class="text-gray-400">Total</span>
-          <span id="bookingTotalDisplay" class="font-bold text-[#00f0ff] text-base">₹0</span>
         </div>
 
         <button type="button" id="continueToDetailsBtn" class="tap w-full btn-neon-primary py-3 rounded-lg text-sm uppercase">
@@ -456,20 +457,83 @@
                  class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-3 text-base text-white focus:outline-none focus:border-[#00f0ff]" />
           <input type="tel" id="custPhone" placeholder="Mobile number (10 digits)" autocomplete="tel"
                  class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-3 text-base text-white focus:outline-none focus:border-[#00f0ff]" />
-          <button type="button" id="confirmPassBtn" class="tap w-full btn-neon-primary py-3 rounded-lg text-sm uppercase font-bold">
-            Claim Digital Entry Pass
+          <button type="button" id="confirmPassBtn" class="tap w-full btn-neon-primary py-3.5 rounded-xl text-sm uppercase font-extrabold flex items-center justify-center gap-2">
+            <i class="fa-solid fa-shield-halved text-xs"></i>
+            <span>Proceed to Secure Pay</span>
           </button>
         </div>
       </div>
 
-      <div id="modalPassSuccess" class="hidden text-center py-4">
-        <i class="fa-solid fa-circle-check text-4xl text-green-400 mb-2"></i>
-        <h4 class="text-base font-bold text-white">Entry Pass Confirmed!</h4>
-        <p id="passVenueDisplay" class="text-xs text-gray-300 mt-1"></p>
-        <div class="my-4 bg-white p-3 rounded-lg inline-block">
-          <img id="passQRCode" src="https://api.qrserver.com/v1/create-qr-code/?size=140x140&data=PUBSCENE_VALID" alt="Pass QR" class="w-32 h-32" />
+      <!-- GENERATING QR ANIMATION STAGE -->
+      <div id="modalGeneratingQR" class="hidden text-center py-8 px-2 space-y-5">
+        <div class="relative w-36 h-36 mx-auto bg-[#18152e] border-2 border-[#00f0ff] rounded-2xl p-4 flex flex-col items-center justify-center overflow-hidden shadow-[0_0_30px_rgba(0,240,255,0.35)]">
+          <!-- Cyber Laser Beam -->
+          <div class="absolute left-0 right-0 h-1 bg-gradient-to-r from-transparent via-[#00f0ff] to-transparent shadow-[0_0_12px_#00f0ff] animate-laser"></div>
+          
+          <i class="fa-solid fa-qrcode text-5xl text-[#00f0ff] animate-pulse"></i>
+          <div class="mt-2.5 flex items-center gap-1.5 text-[10px] text-[#00f0ff] font-mono font-bold tracking-wider">
+            <i class="fa-solid fa-lock text-[9px]"></i>
+            <span>SECURE PAY</span>
+          </div>
         </div>
-        <p class="text-xs text-gray-300">Code: <span id="passCodeDisplay" class="font-bold text-[#00f0ff]">#PUB-0000</span></p>
+
+        <div class="space-y-1">
+          <h4 id="genStatusTitle" class="text-base sm:text-lg font-bold text-white flex items-center justify-center gap-2">
+            <i class="fa-solid fa-circle-notch fa-spin text-[#00f0ff] text-sm"></i>
+            <span>Generating QR for Secure Pay...</span>
+          </h4>
+          <p id="genStatusSubtitle" class="text-xs text-gray-400 font-mono">
+            Securing UPI payment session...
+          </p>
+        </div>
+
+        <!-- Cyber Progress Bar -->
+        <div class="w-full max-w-xs mx-auto bg-[#18152e] rounded-full h-1.5 overflow-hidden border border-[#2b274c]">
+          <div id="genProgressBar" class="h-full bg-gradient-to-r from-[#00f0ff] via-[#bd00ff] to-[#ff007f] transition-all duration-300 w-1/4"></div>
+        </div>
+      </div>
+
+      <!-- PAYMENT QR & WHATSAPP REDIRECTION STAGE -->
+      <div id="modalPaymentQR" class="hidden text-center py-1 space-y-3.5">
+        <!-- Pass Code & Summary Badge -->
+        <div class="flex items-center justify-between bg-[#18152e] border border-purple-800/40 rounded-xl px-3.5 py-2.5 text-xs">
+          <div class="text-left">
+            <p class="text-[9px] uppercase font-bold text-gray-400">Pass Code</p>
+            <p id="qrPassCodeDisplay" class="font-mono font-bold text-[#00f0ff] text-sm tracking-wide">#PUB-000000</p>
+          </div>
+          <div class="text-right">
+            <p class="text-[9px] uppercase font-bold text-gray-400">Reserved For</p>
+            <p id="qrPassSummaryDisplay" class="font-bold text-white text-xs">Couple: 1</p>
+          </div>
+        </div>
+
+        <!-- PhonePe QR Code Container -->
+        <div class="relative bg-white p-2 rounded-2xl shadow-[0_0_25px_rgba(189,0,255,0.25)] border-2 border-purple-500/40 inline-block max-w-[260px] sm:max-w-[280px]">
+          <img src="assets/images/payment-qr.png" alt="PhonePe Payment QR - Ashwin Sanjayrao Akare" class="w-full h-auto rounded-xl object-contain mx-auto" />
+        </div>
+
+        <!-- Instructions -->
+        <div class="bg-[#18152e] border border-purple-800/40 rounded-xl p-3 text-xs text-gray-300 text-left space-y-1.5">
+          <div class="flex items-start gap-2">
+            <span class="bg-[#00f0ff] text-black font-extrabold text-[10px] rounded-full w-4 h-4 flex items-center justify-center shrink-0 mt-0.5">1</span>
+            <p>Scan above with <strong class="text-white">PhonePe, Google Pay, Paytm</strong>, or any UPI app to complete payment.</p>
+          </div>
+          <div class="flex items-start gap-2">
+            <span class="bg-[#25D366] text-black font-extrabold text-[10px] rounded-full w-4 h-4 flex items-center justify-center shrink-0 mt-0.5">2</span>
+            <p>Click below to open WhatsApp, share screenshot & receive your tickets!</p>
+          </div>
+        </div>
+
+        <!-- WhatsApp Redirect Button -->
+        <a id="whatsappRedirectBtn" href="https://wa.me/918855882926" target="_blank"
+           class="tap w-full bg-[#25D366] hover:bg-[#20bd5a] text-black font-black py-3.5 px-4 rounded-xl flex items-center justify-center gap-2 text-sm shadow-[0_0_20px_rgba(37,211,102,0.4)] transition-all hover:scale-[1.02] active:scale-95">
+          <i class="fa-brands fa-whatsapp text-2xl text-black"></i>
+          <span>Send Screenshot on WhatsApp (8855882926)</span>
+        </a>
+
+        <p class="text-[11px] text-gray-400">
+          Tickets are verified and delivered directly to your WhatsApp by our team at <strong class="text-white">8855882926</strong>.
+        </p>
       </div>
     </div>
   </div>

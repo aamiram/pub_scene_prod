@@ -3,7 +3,6 @@ const cors = require('cors');
 const crypto = require('crypto');
 const fs = require('fs');
 const path = require('path');
-const Razorpay = require('razorpay');
 
 require('dotenv').config({ path: path.join(__dirname, '.env') });
 
@@ -12,7 +11,6 @@ const {
   closeDatabase,
   saveOrGetUser,
   createBooking,
-  updateBookingPayment,
   listEvents,
   getEventById,
   listOrganizers,
@@ -37,14 +35,7 @@ app.set('trust proxy', 1);
 app.disable('x-powered-by');
 
 app.use(cors({ origin: true, credentials: true }));
-app.use(express.json({
-  limit: '12mb',
-  verify: (req, _res, buf) => {
-    if (req.originalUrl && req.originalUrl.startsWith('/api/razorpay-webhook')) {
-      req.rawBody = buf;
-    }
-  }
-}));
+app.use(express.json({ limit: '12mb' }));
 
 app.use((err, req, res, next) => {
   if (err instanceof SyntaxError && err.status === 400 && 'body' in err) {
@@ -53,38 +44,7 @@ app.use((err, req, res, next) => {
   return next(err);
 });
 
-function createRazorpay() {
-  const keyId = process.env.RAZORPAY_KEY_ID;
-  const keySecret = process.env.RAZORPAY_KEY_SECRET;
-  if (!keyId || !keySecret) {
-    console.warn('Razorpay keys are missing. Paid checkout stays disabled.');
-    return null;
-  }
-  try {
-    return new Razorpay({ key_id: keyId, key_secret: keySecret });
-  } catch (err) {
-    console.error('Razorpay client failed to start. Paid checkout stays disabled:', err.message);
-    return null;
-  }
-}
 
-let razorpay = createRazorpay();
-
-function withTimeout(promise, ms, label) {
-  return new Promise((resolve, reject) => {
-    const timer = setTimeout(() => reject(new Error(label + ' timed out')), ms);
-    Promise.resolve(promise).then(
-      (value) => {
-        clearTimeout(timer);
-        resolve(value);
-      },
-      (err) => {
-        clearTimeout(timer);
-        reject(err);
-      }
-    );
-  });
-}
 
 app.get('/api/health', (_req, res) => {
   try {
@@ -201,143 +161,30 @@ app.post('/api/create-pass-order', async (req, res) => {
       return res.status(400).json({ error: 'Choose at least one pass' });
     }
 
-    const couplePrice = Math.max(0, Number(event.couplePrice) || 0);
-    const stagPrice = Math.max(0, Number(event.coverPrice) || 0);
-    const amount = couplePasses * couplePrice + stagPasses * stagPrice;
     const userId = await saveOrGetUser(user);
     const passCode = 'PUB-' + Math.floor(100000 + Math.random() * 900000);
 
-    if (amount === 0) {
-      const savedPass = await createBooking({
-        userId,
-        venueId: event.id,
-        venueName: event.name,
-        couplePasses,
-        stagPasses,
-        totalAmount: 0,
-        razorpayOrderId: 'FREE_ENTRY_' + Date.now(),
-        passCode,
-        status: 'FREE_CONFIRMED'
-      });
-
-      return res.status(200).json({
-        isFree: true,
-        passCode: savedPass.passCode,
-        venueName: event.name,
-        message: 'Free entry pass generated successfully'
-      });
-    }
-
-    if (!razorpay) {
-      razorpay = createRazorpay();
-    }
-    if (!razorpay) {
-      return res.status(503).json({ error: 'Paid checkout is not configured' });
-    }
-
-    const options = {
-      amount: Math.round(amount * 100),
-      currency: 'INR',
-      receipt: `rcpt_${passCode}`,
-      notes: {
-        userId: userId.toString(),
-        venue: event.name,
-        phone: user.phone || user.instagram
-      }
-    };
-
-    const order = await withTimeout(
-      razorpay.orders.create(options),
-      15000,
-      'Razorpay order'
-    );
-
-    await createBooking({
+    const savedPass = await createBooking({
       userId,
       venueId: event.id,
       venueName: event.name,
       couplePasses,
       stagPasses,
-      totalAmount: amount,
-      razorpayOrderId: order.id,
+      totalAmount: 0,
+      razorpayOrderId: null,
       passCode,
-      status: 'PENDING'
+      status: 'CONFIRMED'
     });
 
-    res.status(200).json({
-      isFree: false,
-      orderId: order.id,
-      amount: order.amount,
-      currency: order.currency,
-      passCode,
-      keyId: process.env.RAZORPAY_KEY_ID
+    return res.status(200).json({
+      success: true,
+      passCode: savedPass.passCode,
+      venueName: event.name,
+      message: 'Digital entry pass confirmed successfully'
     });
   } catch (err) {
-    console.error('Error creating pass order:', err);
-    res.status(500).json({ error: 'Could not create the pass order' });
-  }
-});
-
-app.post('/api/verify-payment', async (req, res) => {
-  try {
-    const { razorpay_order_id, razorpay_payment_id, razorpay_signature, passCode } = req.body || {};
-    if (!razorpay_order_id || !razorpay_payment_id || !razorpay_signature) {
-      return res.status(400).json({ status: 'failure', message: 'Payment details are incomplete' });
-    }
-    if (!process.env.RAZORPAY_KEY_SECRET) {
-      return res.status(503).json({ status: 'failure', message: 'Payment verification is not configured' });
-    }
-
-    const body = razorpay_order_id + '|' + razorpay_payment_id;
-    const expectedSignature = crypto
-      .createHmac('sha256', process.env.RAZORPAY_KEY_SECRET)
-      .update(body.toString())
-      .digest('hex');
-
-    if (expectedSignature === razorpay_signature) {
-      await updateBookingPayment(razorpay_order_id, razorpay_payment_id, 'SUCCESS');
-      return res.status(200).json({ status: 'success', message: 'Payment verified', passCode });
-    }
-
-    await updateBookingPayment(razorpay_order_id, razorpay_payment_id, 'FAILED_SIGNATURE');
-    return res.status(400).json({ status: 'failure', message: 'Signature verification failed' });
-  } catch (err) {
-    console.error('Verification error:', err);
-    res.status(500).json({ status: 'failure', message: 'Could not verify payment' });
-  }
-});
-
-app.post('/api/razorpay-webhook', async (req, res) => {
-  try {
-    const webhookSecret = process.env.RAZORPAY_WEBHOOK_SECRET;
-    const webhookSignature = req.headers['x-razorpay-signature'];
-    if (!webhookSecret || !webhookSignature || !req.rawBody) {
-      return res.status(400).json({ status: 'invalid_signature' });
-    }
-
-    const expectedSignature = crypto
-      .createHmac('sha256', webhookSecret)
-      .update(req.rawBody)
-      .digest('hex');
-
-    if (expectedSignature !== webhookSignature) {
-      console.warn('Webhook signature mismatch. Dropping request.');
-      return res.status(400).json({ status: 'invalid_signature' });
-    }
-
-    const event = req.body && req.body.event;
-    if (event === 'payment.captured' || event === 'order.paid') {
-      const paymentEntity = req.body.payload && req.body.payload.payment && req.body.payload.payment.entity;
-      if (paymentEntity && paymentEntity.order_id && paymentEntity.id) {
-        await updateBookingPayment(paymentEntity.order_id, paymentEntity.id, 'SUCCESS_WEBHOOK');
-        console.log(`[Webhook Confirmed] Order ${paymentEntity.order_id} marked as SUCCESS.`);
-      }
-    }
-
-    return res.status(200).json({ status: 'ok' });
-  } catch (err) {
-    console.error('Webhook error:', err);
-    res.status(500).json({ error: 'Webhook could not be processed' });
+    console.error('Error creating pass:', err);
+    res.status(500).json({ error: 'Could not create the entry pass' });
   }
 });
 
