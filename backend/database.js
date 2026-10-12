@@ -106,6 +106,26 @@ if (!eventColumns.includes('couple_price')) {
 if (!eventColumns.includes('last_booking_date')) {
   db.exec('ALTER TABLE events ADD COLUMN last_booking_date TEXT');
 }
+if (!eventColumns.includes('pass1_title')) {
+  db.exec("ALTER TABLE events ADD COLUMN pass1_title TEXT DEFAULT 'Couple pass'");
+}
+if (!eventColumns.includes('pass1_desc')) {
+  db.exec("ALTER TABLE events ADD COLUMN pass1_desc TEXT DEFAULT 'Entry for 2'");
+}
+if (!eventColumns.includes('pass2_title')) {
+  db.exec("ALTER TABLE events ADD COLUMN pass2_title TEXT DEFAULT 'Stag pass'");
+}
+if (!eventColumns.includes('pass2_desc')) {
+  db.exec("ALTER TABLE events ADD COLUMN pass2_desc TEXT DEFAULT 'Single entry'");
+}
+if (!eventColumns.includes('tickets')) {
+  db.exec('ALTER TABLE events ADD COLUMN tickets TEXT');
+}
+
+const bookingColumns = db.prepare('PRAGMA table_info(bookings)').all().map((column) => column.name);
+if (!bookingColumns.includes('passes_summary')) {
+  db.exec('ALTER TABLE bookings ADD COLUMN passes_summary TEXT');
+}
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS admin_sessions (
@@ -173,6 +193,36 @@ try {
 }
 
 function mapEvent(row) {
+  let tickets = [];
+  if (row.tickets) {
+    try {
+      tickets = JSON.parse(row.tickets);
+      if (!Array.isArray(tickets)) tickets = [];
+    } catch (_) {
+      tickets = [];
+    }
+  }
+
+  if (!tickets.length) {
+    tickets = [
+      {
+        id: 't-1',
+        name: row.pass1_title || 'Couple pass',
+        desc: row.pass1_desc || 'Entry for 2',
+        price: row.couple_price == null ? 0 : row.couple_price
+      },
+      {
+        id: 't-2',
+        name: row.pass2_title || 'Stag pass',
+        desc: row.pass2_desc || 'Single entry',
+        price: row.cover_price == null ? 0 : row.cover_price
+      }
+    ];
+  }
+
+  const pass1 = tickets[0] || { name: 'Couple pass', desc: 'Entry for 2', price: 0 };
+  const pass2 = tickets[1] || { name: 'Stag pass', desc: 'Single entry', price: 0 };
+
   return {
     id: row.id,
     name: row.name,
@@ -182,8 +232,13 @@ function mapEvent(row) {
     category: row.category,
     date: row.event_date,
     price: row.price,
-    coverPrice: row.cover_price,
-    couplePrice: row.couple_price == null ? 0 : row.couple_price,
+    coverPrice: pass2.price,
+    couplePrice: pass1.price,
+    pass1Title: pass1.name,
+    pass1Desc: pass1.desc,
+    pass2Title: pass2.name,
+    pass2Desc: pass2.desc,
+    tickets,
     offerText: row.offer_text,
     image: row.image,
     badge: row.badge,
@@ -262,17 +317,18 @@ function listAdminUsers() {
 function saveOrGetUser(userData) {
   return new Promise((resolve, reject) => {
     try {
-      const { fullName, phone, instagram, age } = userData;
+      const { fullName, phone, instagram, age, email } = userData;
       const phoneKey = phone || ('ig:' + String(instagram || '').toLowerCase());
       const upsert = db.prepare(`
-        INSERT INTO users (full_name, phone, instagram, age)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO users (full_name, phone, email, instagram, age)
+        VALUES (?, ?, ?, ?, ?)
         ON CONFLICT(phone) DO UPDATE SET
           full_name = excluded.full_name,
+          email = excluded.email,
           instagram = excluded.instagram,
           age = excluded.age
       `);
-      upsert.run(fullName, phoneKey, instagram || null, age);
+      upsert.run(fullName, phoneKey, email || null, instagram || null, age);
       const user = db.prepare('SELECT id FROM users WHERE phone = ?').get(phoneKey);
       resolve(user.id);
     } catch (err) {
@@ -286,17 +342,17 @@ function createBooking(bookingData) {
     try {
       const {
         userId, venueId, venueName, couplePasses, stagPasses,
-        totalAmount, razorpayOrderId, passCode, status
+        totalAmount, razorpayOrderId, passCode, status, passesSummary
       } = bookingData;
 
       const info = db.prepare(`
         INSERT INTO bookings (
           user_id, venue_id, venue_name, couple_passes, stag_passes,
-          total_amount, razorpay_order_id, pass_code, payment_status
-        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+          total_amount, razorpay_order_id, pass_code, payment_status, passes_summary
+        ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
       `).run(
-        userId, venueId, venueName, couplePasses, stagPasses,
-        totalAmount, razorpayOrderId, passCode, status
+        userId, venueId, venueName, couplePasses || 0, stagPasses || 0,
+        totalAmount, razorpayOrderId, passCode, status, passesSummary || null
       );
 
       resolve({ bookingId: info.lastInsertRowid, passCode });
@@ -322,17 +378,62 @@ function updateBookingPayment(orderId, paymentId, status) {
 }
 
 function saveEvent(event) {
-  const couplePrice = Math.max(0, Number(event.couplePrice) || 0);
-  const coverPrice = Math.max(0, Number(event.coverPrice) || 0);
-  const paid = [couplePrice, coverPrice].filter((amount) => amount > 0);
+  let tickets = [];
+  if (Array.isArray(event.tickets)) {
+    tickets = event.tickets.map((t, idx) => ({
+      id: t.id || `t-${idx + 1}-${Date.now().toString(36)}`,
+      name: String(t.name || `Ticket #${idx + 1}`).trim(),
+      desc: String(t.desc || '').trim(),
+      price: Math.max(0, Number(t.price) || 0)
+    })).filter(t => t.name.length > 0);
+  } else if (typeof event.tickets === 'string') {
+    try {
+      tickets = JSON.parse(event.tickets);
+      if (!Array.isArray(tickets)) tickets = [];
+    } catch (_) {}
+  }
+
+  if (!tickets.length) {
+    const couplePrice = Math.max(0, Number(event.couplePrice) || 0);
+    const coverPrice = Math.max(0, Number(event.coverPrice) || 0);
+    tickets = [
+      {
+        id: 't-1',
+        name: String(event.pass1Title || 'Couple pass').trim(),
+        desc: String(event.pass1Desc || 'Entry for 2').trim(),
+        price: couplePrice
+      },
+      {
+        id: 't-2',
+        name: String(event.pass2Title || 'Stag pass').trim(),
+        desc: String(event.pass2Desc || 'Single entry').trim(),
+        price: coverPrice
+      }
+    ];
+  }
+
+  const pass1 = tickets[0] || { name: 'Couple pass', desc: 'Entry for 2', price: 0 };
+  const pass2 = tickets[1] || { name: 'Stag pass', desc: 'Single entry', price: 0 };
+  const couplePrice = pass1.price;
+  const coverPrice = pass2.price;
+  const pass1Title = pass1.name;
+  const pass1Desc = pass1.desc;
+  const pass2Title = pass2.name;
+  const pass2Desc = pass2.desc;
+
+  const paid = tickets.map(t => t.price).filter(p => p > 0);
   const fromPrice = paid.length ? Math.min(...paid) : 0;
+  const ticketsJson = JSON.stringify(tickets);
+
   db.prepare(`
     INSERT INTO events (
       id, name, venue_name, area_id, area_name, category, event_date,
-      price, cover_price, couple_price, offer_text, image, badge, last_booking_date
+      price, cover_price, couple_price, pass1_title, pass1_desc, pass2_title, pass2_desc,
+      tickets, offer_text, image, badge, last_booking_date
     ) VALUES (
       @id, @name, @venueName, @areaId, @areaName, @category, @date,
-      @price, @coverPrice, @couplePrice, @offerText, @image, @badge, @lastBookingDate
+      @price, @coverPrice, @couplePrice, @pass1Title, @pass1Desc, @pass2Title, @pass2Desc,
+      @tickets, @offerText, @image, @badge, @lastBookingDate
     )
     ON CONFLICT(id) DO UPDATE SET
       name = excluded.name,
@@ -344,6 +445,11 @@ function saveEvent(event) {
       price = excluded.price,
       cover_price = excluded.cover_price,
       couple_price = excluded.couple_price,
+      pass1_title = excluded.pass1_title,
+      pass1_desc = excluded.pass1_desc,
+      pass2_title = excluded.pass2_title,
+      pass2_desc = excluded.pass2_desc,
+      tickets = excluded.tickets,
       offer_text = excluded.offer_text,
       image = excluded.image,
       badge = excluded.badge,
@@ -359,6 +465,11 @@ function saveEvent(event) {
     price: fromPrice,
     coverPrice,
     couplePrice,
+    pass1Title,
+    pass1Desc,
+    pass2Title,
+    pass2Desc,
+    tickets: ticketsJson,
     offerText: event.offerText || '',
     image: event.image || '',
     badge: event.badge || '',
@@ -374,8 +485,8 @@ function deleteEvent(id) {
 function listAdminBookings() {
   return db.prepare(`
     SELECT b.id, b.venue_name, b.couple_passes, b.stag_passes, b.total_amount,
-           b.payment_status, b.pass_code, b.booking_date,
-           u.full_name, u.phone, u.instagram, u.age
+           b.payment_status, b.pass_code, b.booking_date, b.passes_summary,
+           u.full_name, u.phone, u.instagram, u.age, u.email
     FROM bookings b
     LEFT JOIN users u ON u.id = b.user_id
     ORDER BY b.booking_date DESC

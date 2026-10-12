@@ -122,6 +122,7 @@ app.post('/api/create-pass-order', async (req, res) => {
     const fullName = String(user && user.fullName || '').trim();
     const phone = String(user && user.phone || '').replace(/\D/g, '');
     const instagram = String(user && user.instagram || '').trim().replace(/^@+/, '');
+    const email = String(user && user.email || '').trim();
     const age = parseInt(user && user.age, 10);
     if (!fullName) {
       return res.status(400).json({ error: 'Enter your name' });
@@ -138,6 +139,7 @@ app.post('/api/create-pass-order', async (req, res) => {
     user.fullName = fullName;
     user.phone = phone;
     user.instagram = instagram;
+    user.email = email;
     user.age = age;
     if (!booking || !booking.venueId) {
       return res.status(400).json({ error: 'Choose an event before booking a pass' });
@@ -157,12 +159,14 @@ app.post('/api/create-pass-order', async (req, res) => {
 
     const couplePasses = Math.max(0, parseInt(booking.couplePasses, 10) || 0);
     const stagPasses = Math.max(0, parseInt(booking.stagPasses, 10) || 0);
-    if (couplePasses + stagPasses < 1) {
+    const totalSelected = booking.totalPasses != null ? parseInt(booking.totalPasses, 10) : (couplePasses + stagPasses);
+    if (totalSelected < 1 && couplePasses + stagPasses < 1) {
       return res.status(400).json({ error: 'Choose at least one pass' });
     }
 
     const userId = await saveOrGetUser(user);
     const passCode = 'PUB-' + Math.floor(100000 + Math.random() * 900000);
+    const passesSummary = String(booking.passesSummary || '').trim() || (couplePasses > 0 || stagPasses > 0 ? `Couple: ${couplePasses}, Stag: ${stagPasses}` : '1 Pass');
 
     const savedPass = await createBooking({
       userId,
@@ -173,7 +177,8 @@ app.post('/api/create-pass-order', async (req, res) => {
       totalAmount: 0,
       razorpayOrderId: null,
       passCode,
-      status: 'CONFIRMED'
+      status: 'CONFIRMED',
+      passesSummary
     });
 
     return res.status(200).json({
@@ -352,6 +357,11 @@ function upsertAdminEvent(body, forcedId, existing) {
     date,
     couplePrice: body.couplePrice,
     coverPrice: body.stagPrice,
+    pass1Title: body.pass1Title ? String(body.pass1Title).trim() : 'Couple pass',
+    pass1Desc: body.pass1Desc ? String(body.pass1Desc).trim() : 'Entry for 2',
+    pass2Title: body.pass2Title ? String(body.pass2Title).trim() : 'Stag pass',
+    pass2Desc: body.pass2Desc ? String(body.pass2Desc).trim() : 'Single entry',
+    tickets: body.tickets,
     offerText: String(body.offerText || '').trim(),
     image,
     badge: String(body.badge || '').trim(),
