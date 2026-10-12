@@ -5,11 +5,17 @@
   --dark-night: #080314;
 }
 
+* {
+  box-sizing: border-box;
+  -webkit-tap-highlight-color: transparent;
+}
+
 body {
   background-color: var(--dark-night);
   font-family: 'Montserrat', sans-serif;
   color: #f1f5f9;
   overflow-x: hidden;
+  -webkit-text-size-adjust: 100%;
 }
 
 /* 1. Ambient Dynamic Neon Purple Background with Flash Lights */

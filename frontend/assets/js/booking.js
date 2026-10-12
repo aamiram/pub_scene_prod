@@ -59,7 +59,7 @@ function openBookingModal(venueId) {
   const passesContainer = document.getElementById('modalPassesContainer');
   if (passesContainer) {
     passesContainer.innerHTML = activeTickets.map((t, idx) => `
-      <div class="flex items-center justify-between bg-[#18152e] border border-purple-800/40 rounded px-3 py-2.5">
+      <div class="flex items-center justify-between bg-[#18152e] border border-purple-800/40 rounded-xl px-3.5 py-3">
         <div class="pr-2 flex-1">
           <div class="flex items-center gap-1.5 flex-wrap">
             <p class="text-xs text-white font-semibold">${escapeHtml(t.name)}</p>
@@ -68,9 +68,9 @@ function openBookingModal(venueId) {
           ${t.desc ? `<p class="text-[10px] text-gray-400 mt-0.5">${escapeHtml(t.desc)}</p>` : ''}
         </div>
         <div class="flex items-center gap-2 flex-shrink-0">
-          <button type="button" onclick="changeTicketQty(${idx}, -1)" class="w-7 h-7 rounded-full bg-[#121124] border border-[#2b274c] text-white font-bold">−</button>
-          <span id="qty-ticket-${idx}" class="text-xs font-bold text-white w-5 text-center">${ticketQuantities[idx]}</span>
-          <button type="button" onclick="changeTicketQty(${idx}, 1)" class="w-7 h-7 rounded-full bg-[#121124] border border-[#2b274c] text-white font-bold">+</button>
+          <button type="button" onclick="changeTicketQty(${idx}, -1)" aria-label="Decrease quantity" class="w-8 h-8 rounded-full bg-[#121124] border border-[#2b274c] text-white font-bold active:scale-90 active:border-[#00f0ff] transition-transform text-sm flex items-center justify-center select-none">−</button>
+          <span id="qty-ticket-${idx}" class="text-xs font-bold text-white w-6 text-center select-none">${ticketQuantities[idx]}</span>
+          <button type="button" onclick="changeTicketQty(${idx}, 1)" aria-label="Increase quantity" class="w-8 h-8 rounded-full bg-[#121124] border border-[#2b274c] text-white font-bold active:scale-90 active:border-[#00f0ff] transition-transform text-sm flex items-center justify-center select-none">+</button>
         </div>
       </div>
     `).join('');

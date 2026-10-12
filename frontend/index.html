@@ -2,7 +2,11 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#07070b" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="format-detection" content="telephone=no" />
   <title>PUB SCENE | Nagpur's #1 Nightlife Guide & Pass Booking</title>
   <link rel="icon" href="assets/images/logo.png?v=2" />
   
@@ -11,8 +15,6 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet" />
 
-
-
   <style>
     :root {
       --neon-cyan: #00f0ff;
@@ -20,9 +22,14 @@
       --neon-pink: #ff007f;
       --bg-dark: #07070b;
     }
+    * {
+      -webkit-tap-highlight-color: transparent;
+      box-sizing: border-box;
+    }
     html {
       scroll-behavior: smooth;
       scroll-padding-top: 110px;
+      -webkit-text-size-adjust: 100%;
     }
     @media (max-width: 768px) {
       html {
@@ -34,11 +41,22 @@
       font-family: 'Plus Jakarta Sans', sans-serif;
       color: #e2e8f0;
       overflow-x: hidden;
-      padding-bottom: 76px;
+      padding-bottom: calc(76px + env(safe-area-inset-bottom, 0px));
     }
     @media (min-width: 768px) {
       body {
         padding-bottom: 0;
+      }
+    }
+    #mobileBottomNav {
+      padding-bottom: max(10px, env(safe-area-inset-bottom, 0px));
+    }
+    .floating-contact-btns {
+      bottom: calc(78px + env(safe-area-inset-bottom, 0px));
+    }
+    @media (min-width: 768px) {
+      .floating-contact-btns {
+        bottom: 1.5rem;
       }
     }
     .bg-ambient-lights {
@@ -61,10 +79,14 @@
       font-weight: 700;
       box-shadow: 0 0 15px rgba(0, 240, 255, 0.4);
       transition: all 0.2s ease-in-out;
+      touch-action: manipulation;
     }
     .btn-neon-primary:hover {
       box-shadow: 0 0 25px rgba(0, 240, 255, 0.7);
       transform: translateY(-1px);
+    }
+    .btn-neon-primary:active, .tap:active {
+      transform: scale(0.97);
     }
     @keyframes laserScan {
       0% { top: 0%; opacity: 0.8; }
@@ -80,17 +102,24 @@
       scrollbar-width: none;
       -webkit-overflow-scrolling: touch;
     }
-    img { max-width: 100%; }
-    input, select, textarea, button { font-size: 16px; }
+    img { max-width: 100%; height: auto; }
+    input, select, textarea, button { font-size: 16px; font-family: inherit; }
     .tap { min-height: 44px; touch-action: manipulation; }
     #events, #venues, #collab {
       scroll-margin-top: 120px;
     }
+    @keyframes sheetSlideUp {
+      from { transform: translateY(100%); opacity: 0.85; }
+      to { transform: translateY(0); opacity: 1; }
+    }
     @media (max-width: 640px) {
       #bookingModal > div, #collabModal > div, #organizeModal > div {
         max-width: 100%;
-        border-radius: 20px 20px 0 0;
+        border-radius: 24px 24px 0 0;
         margin-top: auto;
+        padding-bottom: max(24px, env(safe-area-inset-bottom, 16px));
+        max-height: calc(90vh - env(safe-area-inset-top, 0px));
+        animation: sheetSlideUp 0.26s cubic-bezier(0.16, 1, 0.3, 1);
       }
       #bookingModal, #collabModal, #organizeModal {
         align-items: flex-end;
@@ -399,11 +428,11 @@
   </nav>
 
   <!-- FLOATING QUICK CONTACT BUTTONS -->
-  <div class="fixed bottom-20 md:bottom-6 right-3 md:right-5 z-40 flex flex-col gap-2.5">
-    <a href="tel:+918855882926" aria-label="Call Pub Scene" class="bg-blue-600/90 hover:bg-blue-600 text-white w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110 border border-white/20">
+  <div class="floating-contact-btns fixed right-3 md:right-5 z-40 flex flex-col gap-2.5">
+    <a href="tel:+918855882926" aria-label="Call Pub Scene" class="bg-blue-600/90 hover:bg-blue-600 text-white w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110 border border-white/20 active:scale-90">
       <i class="fa-solid fa-phone text-sm sm:text-base"></i>
     </a>
-    <a href="https://wa.me/918855882926" target="_blank" aria-label="WhatsApp Pub Scene" class="bg-[#25D366] hover:bg-[#20b858] text-white w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110 border border-white/20">
+    <a href="https://wa.me/918855882926" target="_blank" aria-label="WhatsApp Pub Scene" class="bg-[#25D366] hover:bg-[#20b858] text-white w-10 h-10 sm:w-12 sm:h-12 rounded-full flex items-center justify-center shadow-lg transition-transform hover:scale-110 border border-white/20 active:scale-90">
       <i class="fa-brands fa-whatsapp text-lg sm:text-xl"></i>
     </a>
   </div>
@@ -411,7 +440,9 @@
   <!-- BOOKING MODAL -->
   <div id="bookingModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="bg-[#110f22] border border-cyan-500/40 rounded-2xl max-w-md w-full p-6 relative max-h-[90vh] overflow-y-auto">
-      <button type="button" onclick="closeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-lg">
+      <!-- Mobile Pull Indicator Handle -->
+      <div class="w-12 h-1 bg-gray-500/40 rounded-full mx-auto mb-3 sm:hidden" aria-hidden="true"></div>
+      <button type="button" onclick="closeModal()" aria-label="Close modal" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-[#1b1731] border border-[#3b3464] flex items-center justify-center text-gray-400 hover:text-white active:scale-95 transition-all text-sm z-10">
         <i class="fa-solid fa-xmark"></i>
       </button>
 
@@ -525,7 +556,9 @@
   <!-- COLLAB MODAL -->
   <div id="collabModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="bg-[#110f22] border border-pink-500/40 rounded-2xl max-w-md w-full p-6 relative">
-      <button type="button" onclick="closeCollabModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-lg">
+      <!-- Mobile Pull Indicator Handle -->
+      <div class="w-12 h-1 bg-gray-500/40 rounded-full mx-auto mb-3 sm:hidden" aria-hidden="true"></div>
+      <button type="button" onclick="closeCollabModal()" aria-label="Close modal" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-[#1b1731] border border-[#3b3464] flex items-center justify-center text-gray-400 hover:text-white active:scale-95 transition-all text-sm z-10">
         <i class="fa-solid fa-xmark"></i>
       </button>
       <form id="collabForm" class="space-y-3">
@@ -554,7 +587,9 @@
   <!-- ORGANIZE EVENT MODAL -->
   <div id="organizeModal" class="fixed inset-0 bg-black/80 backdrop-blur-md z-50 hidden flex items-center justify-center p-4">
     <div class="bg-[#110f22] border border-cyan-500/40 rounded-2xl max-w-md w-full p-6 relative max-h-[90vh] overflow-y-auto">
-      <button type="button" onclick="closeOrganizeModal()" class="absolute top-4 right-4 text-gray-400 hover:text-white text-lg">
+      <!-- Mobile Pull Indicator Handle -->
+      <div class="w-12 h-1 bg-gray-500/40 rounded-full mx-auto mb-3 sm:hidden" aria-hidden="true"></div>
+      <button type="button" onclick="closeOrganizeModal()" aria-label="Close modal" class="absolute top-4 right-4 w-8 h-8 rounded-full bg-[#1b1731] border border-[#3b3464] flex items-center justify-center text-gray-400 hover:text-white active:scale-95 transition-all text-sm z-10">
         <i class="fa-solid fa-xmark"></i>
       </button>
       <form id="organizeForm" class="space-y-3">
