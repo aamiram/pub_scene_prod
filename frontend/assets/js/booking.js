@@ -205,11 +205,7 @@ document.getElementById('confirmPassBtn')?.addEventListener('click', async () =>
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || 'Server error occurred');
 
-test_branch
     // Ensure futuristic generation animation displays for at least 1.6s
-
-    // Ensure the futuristic generation animation displays for at least 1.6s
-main
     const elapsed = Date.now() - startTime;
     const remainingDelay = Math.max(0, 1600 - elapsed);
     if (progressNode) progressNode.style.width = '100%';
@@ -225,7 +221,6 @@ main
 
       const summaryNode = document.getElementById('qrPassSummaryDisplay');
       if (summaryNode) {
- test_branch
         summaryNode.textContent = passesSummary;
       }
 
@@ -248,26 +243,6 @@ main
         `• *Email:* ${emailDisplay}\n\n` +
         `*PASSES:* ${passesSummary}\n\n` +
         `I have completed payment on the PhonePe QR code and attached my payment screenshot above. Please verify and send my tickets!`;
-
-        const parts = [];
-        if (quantities.couple > 0) parts.push(`Couple: ${quantities.couple}`);
-        if (quantities.stag > 0) parts.push(`Stag: ${quantities.stag}`);
-        summaryNode.textContent = parts.join(', ') || '1 Pass';
-      }
-
-      // Pre-filled WhatsApp confirmation message
-      const eventName = data.venueName || activeBookingVenue.name;
-      const contactInfo = phone || instagram || 'Guest';
-      const passText = `Couple: ${quantities.couple}, Stag: ${quantities.stag}`;
-
-      const waText = 
-        `Hi Pub Scene! I have completed payment for *${eventName}*.\n\n` +
-        `🎫 *Pass Code:* #${data.passCode}\n` +
-        `👤 *Name:* ${fullName}\n` +
-        `📱 *Contact:* ${contactInfo}\n` +
-        `👥 *Passes:* ${passText}\n\n` +
-        `I have attached my payment screenshot above. Please verify and send my tickets!`;
-main
 
       const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waText)}`;
       const waBtn = document.getElementById('whatsappRedirectBtn');
