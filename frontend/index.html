@@ -85,9 +85,12 @@
       box-shadow: 0 0 25px rgba(0, 240, 255, 0.7);
       transform: translateY(-1px);
     }
+ test_branch
     .btn-neon-primary:active, .tap:active {
       transform: scale(0.97);
     }
+
+ main
     @keyframes laserScan {
       0% { top: 0%; opacity: 0.8; }
       50% { top: 92%; opacity: 1; }
@@ -470,8 +473,11 @@
                  class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-3 text-base text-white focus:outline-none focus:border-[#00f0ff]" />
           <input type="text" id="custInstagram" placeholder="Instagram ID (e.g. @yourhandle)" autocomplete="off"
                  class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-3 text-base text-white focus:outline-none focus:border-[#00f0ff]" />
+ test_branch
           <input type="email" id="custEmail" placeholder="Email address (optional)" autocomplete="email"
                  class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-3 text-base text-white focus:outline-none focus:border-[#00f0ff]" />
+
+ main
           <button type="button" id="confirmPassBtn" class="tap w-full btn-neon-primary py-3.5 rounded-xl text-sm uppercase font-extrabold flex items-center justify-center gap-2">
             <i class="fa-solid fa-shield-halved text-xs"></i>
             <span>Proceed to Secure Pay</span>
@@ -505,6 +511,7 @@
         <!-- Cyber Progress Bar -->
         <div class="w-full max-w-xs mx-auto bg-[#18152e] rounded-full h-1.5 overflow-hidden border border-[#2b274c]">
           <div id="genProgressBar" class="h-full bg-gradient-to-r from-[#00f0ff] via-[#bd00ff] to-[#ff007f] transition-all duration-300 w-1/4"></div>
+ test_branch
         </div>
       </div>
 
@@ -521,6 +528,24 @@
             <p id="qrPassSummaryDisplay" class="font-bold text-white text-xs">Couple: 1</p>
           </div>
         </div>
+
+        </div>
+      </div>
+
+      <!-- PAYMENT QR & WHATSAPP REDIRECTION STAGE -->
+      <div id="modalPaymentQR" class="hidden text-center py-1 space-y-3.5">
+        <!-- Pass Code & Summary Badge -->
+        <div class="flex items-center justify-between bg-[#18152e] border border-purple-800/40 rounded-xl px-3.5 py-2.5 text-xs">
+          <div class="text-left">
+            <p class="text-[9px] uppercase font-bold text-gray-400">Pass Code</p>
+            <p id="qrPassCodeDisplay" class="font-mono font-bold text-[#00f0ff] text-sm tracking-wide">#PUB-000000</p>
+          </div>
+          <div class="text-right">
+            <p class="text-[9px] uppercase font-bold text-gray-400">Reserved For</p>
+            <p id="qrPassSummaryDisplay" class="font-bold text-white text-xs">Couple: 1</p>
+          </div>
+        </div>
+ main
 
         <!-- PhonePe QR Code Container -->
         <div class="relative bg-white p-2 rounded-2xl shadow-[0_0_25px_rgba(189,0,255,0.25)] border-2 border-purple-500/40 inline-block max-w-[260px] sm:max-w-[280px]">
