@@ -1,4 +1,4 @@
-// Booking state for the pass modal.
+// Booking state for the digital pass modal.
 let activeBookingVenue = null;
 let quantities = {
   couple: 1,
@@ -12,17 +12,6 @@ function changeQty(type, delta) {
   quantities[type] = Math.max(0, quantities[type] + delta);
   const qtyNode = document.getElementById(`qty-${type}`);
   if (qtyNode) qtyNode.textContent = String(quantities[type]);
-  updateSubtotal();
-}
-
-function updateSubtotal() {
-  if (!activeBookingVenue) return 0;
-  const coupleCost = quantities.couple * Number(activeBookingVenue.couplePrice || 0);
-  const stagCost = quantities.stag * Number(activeBookingVenue.coverPrice || 0);
-  const total = coupleCost + stagCost;
-  const totalNode = document.getElementById('bookingTotalDisplay');
-  if (totalNode) totalNode.textContent = `₹${total}`;
-  return total;
 }
 
 function openBookingModal(venueId) {
@@ -42,16 +31,12 @@ function openBookingModal(venueId) {
   };
 
   setText('modalClubName', venue.name);
-  setText('modalClubArea', `${venue.areaName} • ${venue.venueName}`);
-  setText('modalClubOffer', venue.offerText);
+  setText('modalClubArea', `${venue.areaName || ''} • ${venue.venueName || ''}`);
+  setText('modalClubOffer', venue.offerText || 'Exclusive entry pass');
   setText('modalEventDate', venue.date || '');
   setText('qty-couple', '1');
   setText('qty-stag', '0');
-  const couplePrice = Number(venue.couplePrice || 0);
-  setText('couplePriceLabel', couplePrice > 0 ? `₹${couplePrice} each` : 'Free entry');
-  setText('stagPriceLabel', `₹${Number(venue.coverPrice || 0)} each`);
 
-  updateSubtotal();
   ['custName', 'custAge', 'custInstagram', 'custPhone'].forEach((id) => {
     const field = document.getElementById(id);
     if (field) field.value = '';
@@ -135,21 +120,19 @@ document.getElementById('confirmPassBtn')?.addEventListener('click', async () =>
     return;
   }
 
-  const totalAmount = updateSubtotal();
   const payload = {
     user: { fullName, phone, instagram, age },
     booking: {
       venueId: activeBookingVenue.id,
       venueName: activeBookingVenue.name,
       couplePasses: quantities.couple,
-      stagPasses: quantities.stag,
-      totalAmount
+      stagPasses: quantities.stag
     }
   };
 
   submitBtn.disabled = true;
   const originalLabel = submitBtn.textContent;
-  submitBtn.textContent = 'Confirming pass...';
+  submitBtn.textContent = 'Generating digital pass...';
 
   try {
     const res = await fetch(`${API_BASE}/api/create-pass-order`, {
@@ -161,66 +144,11 @@ document.getElementById('confirmPassBtn')?.addEventListener('click', async () =>
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || 'Server error occurred');
 
-    if (data.isFree) {
-      renderDigitalPass(data.passCode, data.venueName || activeBookingVenue.name);
-      return;
-    }
-
-    if (typeof Razorpay !== 'function' || !data.keyId || !data.orderId) {
-      throw new Error('Payment checkout is unavailable. Please try again.');
-    }
-
-    const options = {
-      key: data.keyId,
-      amount: data.amount,
-      currency: data.currency,
-      name: 'PUB SCENE NAGPUR',
-      description: `Entry pass for ${activeBookingVenue.name}`,
-      order_id: data.orderId,
-      prefill: {
-        name: fullName,
-        contact: phone || ''
-      },
-      theme: { color: '#ff007f' },
-      modal: {
-        ondismiss: function () {
-          submitBtn.disabled = false;
-          submitBtn.textContent = originalLabel;
-        }
-      },
-      handler: async function (response) {
-        const verifyRes = await fetch(`${API_BASE}/api/verify-payment`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            razorpay_order_id: response.razorpay_order_id,
-            razorpay_payment_id: response.razorpay_payment_id,
-            razorpay_signature: response.razorpay_signature,
-            passCode: data.passCode
-          })
-        });
-        const verifyResult = await verifyRes.json().catch(() => ({}));
-        if (verifyResult.status === 'success') {
-          renderDigitalPass(data.passCode, activeBookingVenue.name);
-        } else {
-          alert(verifyResult.message || 'Payment verification failed. Please contact support.');
-        }
-        submitBtn.disabled = false;
-        submitBtn.textContent = originalLabel;
-      }
-    };
-
-    const rzp = new Razorpay(options);
-    rzp.on('payment.failed', function (resp) {
-      const reason = resp?.error?.description || 'Payment was not completed or was cancelled';
-      alert(`${reason}. If any money was deducted, it will be refunded automatically by your bank within 5 to 7 working days. For help, contact support@pubscene.in.`);
-      submitBtn.disabled = false;
-      submitBtn.textContent = originalLabel;
-    });
-    rzp.open();
+    renderDigitalPass(data.passCode, data.venueName || activeBookingVenue.name);
   } catch (err) {
     console.error(err);
     alert('Unable to process pass: ' + err.message);
+  } finally {
     submitBtn.disabled = false;
     submitBtn.textContent = originalLabel;
   }

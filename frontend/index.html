@@ -11,8 +11,7 @@
   <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
   <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Orbitron:wght@700;900&display=swap" rel="stylesheet" />
 
-  <!-- Razorpay Checkout Library -->
-  <script src="https://checkout.razorpay.com/v1/checkout.js"></script>
+
 
   <style>
     :root {
@@ -128,18 +127,17 @@
             <div class="relative">
               <button type="button" id="cityDropdownBtn" class="tap flex items-center gap-1.5 bg-[#121124] border border-[#2b274c] px-3 py-1.5 sm:py-2 rounded-full hover:border-[#00f0ff] text-xs">
                 <i class="fa-solid fa-location-dot text-[#ff007f]"></i>
-                <span id="currentCityDisplay" class="text-gray-200">Nagpur (All)</span>
+                <span id="currentCityDisplay" class="text-gray-200">Nagpur</span>
                 <i class="fa-solid fa-chevron-down text-[9px] text-gray-400"></i>
               </button>
 
               <!-- Dropdown Menu -->
               <div id="cityDropdownMenu" class="hidden absolute top-full mt-2 right-0 w-44 bg-[#100e21] border border-[#2b274c] rounded-xl shadow-2xl py-1 z-50">
-                <button type="button" data-area="all" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-[#1f1b3b]">All Nagpur</button>
-                <button type="button" data-area="dharampeth" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-[#1f1b3b]">Dharampeth</button>
-                <button type="button" data-area="civil_lines" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-[#1f1b3b]">Civil Lines</button>
-                <button type="button" data-area="wardha_rd" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-[#1f1b3b]">Wardha Road</button>
-                <button type="button" data-area="sadar" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-[#1f1b3b]">Sadar</button>
-                <button type="button" data-area="raasta" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-[#1f1b3b]">Raasta</button>
+                <button type="button" data-area="mumbai" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-[#1f1b3b]">Mumbai</button>
+                <button type="button" data-area="goa" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-[#1f1b3b]">Goa</button>
+                <button type="button" data-area="pune" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-[#1f1b3b]">Pune</button>
+                <button type="button" data-area="nagpur" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-[#1f1b3b]">Nagpur</button>
+                <button type="button" data-area="bengaluru" class="w-full text-left px-3 py-2 text-xs text-white hover:bg-[#1f1b3b]">Bengaluru</button>
               </div>
             </div>
             
@@ -412,11 +410,11 @@
         <p class="text-[11px] text-gray-400" id="modalEventDate"></p>
         <p class="text-xs text-pink-400 mb-4" id="modalClubOffer">Couple entry free before 9:30 PM</p>
 
-        <div class="space-y-2 mb-3">
-          <div class="flex items-center justify-between bg-[#18152e] border border-purple-800/40 rounded px-3 py-2">
+        <div class="space-y-2 mb-4">
+          <div class="flex items-center justify-between bg-[#18152e] border border-purple-800/40 rounded px-3 py-2.5">
             <div>
               <p class="text-xs text-white font-semibold">Couple pass</p>
-              <p id="couplePriceLabel" class="text-[10px] text-gray-400">₹0 each</p>
+              <p class="text-[10px] text-[#00f0ff]">Entry for 2</p>
             </div>
             <div class="flex items-center gap-2">
               <button type="button" onclick="changeQty('couple', -1)" class="w-7 h-7 rounded-full bg-[#121124] border border-[#2b274c] text-white font-bold">−</button>
@@ -424,10 +422,10 @@
               <button type="button" onclick="changeQty('couple', 1)" class="w-7 h-7 rounded-full bg-[#121124] border border-[#2b274c] text-white font-bold">+</button>
             </div>
           </div>
-          <div class="flex items-center justify-between bg-[#18152e] border border-purple-800/40 rounded px-3 py-2">
+          <div class="flex items-center justify-between bg-[#18152e] border border-purple-800/40 rounded px-3 py-2.5">
             <div>
               <p class="text-xs text-white font-semibold">Stag pass</p>
-              <p id="stagPriceLabel" class="text-[10px] text-gray-400">₹0 each</p>
+              <p class="text-[10px] text-[#00f0ff]">Single entry</p>
             </div>
             <div class="flex items-center gap-2">
               <button type="button" onclick="changeQty('stag', -1)" class="w-7 h-7 rounded-full bg-[#121124] border border-[#2b274c] text-white font-bold">−</button>
@@ -435,11 +433,6 @@
               <button type="button" onclick="changeQty('stag', 1)" class="w-7 h-7 rounded-full bg-[#121124] border border-[#2b274c] text-white font-bold">+</button>
             </div>
           </div>
-        </div>
-
-        <div class="flex items-center justify-between text-xs mb-3">
-          <span class="text-gray-400">Total</span>
-          <span id="bookingTotalDisplay" class="font-bold text-[#00f0ff] text-base">₹0</span>
         </div>
 
         <button type="button" id="continueToDetailsBtn" class="tap w-full btn-neon-primary py-3 rounded-lg text-sm uppercase">

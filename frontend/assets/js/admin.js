@@ -75,14 +75,14 @@ function renderBookings() {
     host.innerHTML = '<div class="card"><p>No pass bookings yet. New bookings from the website show up here.</p></div>';
     return;
   }
-  host.innerHTML = '<div class="card table-wrap"><table><thead><tr><th>Guest</th><th>Event</th><th>Passes</th><th>Total</th><th>Status</th></tr></thead><tbody>' +
+  host.innerHTML = '<div class="card table-wrap"><table><thead><tr><th>Guest</th><th>Event</th><th>Passes</th><th>Pass Code</th><th>Status</th></tr></thead><tbody>' +
     overview.bookings.map((row) => `
       <tr>
         <td>${escapeHtml(row.full_name || '')}${row.age ? ', ' + escapeHtml(row.age) : ''}<br><span class="muted">${escapeHtml(guestContact(row))}</span></td>
         <td>${escapeHtml(row.venue_name || '')}</td>
         <td>Couple ${Number(row.couple_passes || 0)}<br>Stag ${Number(row.stag_passes || 0)}</td>
-        <td>${money(row.total_amount)}</td>
-        <td>${escapeHtml(row.payment_status || '')}</td>
+        <td><strong style="color:#00f0ff">${escapeHtml(row.pass_code || '')}</strong></td>
+        <td>${escapeHtml(row.payment_status || 'CONFIRMED')}</td>
       </tr>
     `).join('') + '</tbody></table></div>';
 }
