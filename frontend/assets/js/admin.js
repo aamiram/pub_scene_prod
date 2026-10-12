@@ -66,7 +66,8 @@ function renderFlyers() {
 function guestContact(row) {
   const phone = row.phone && !String(row.phone).startsWith('ig:') ? row.phone : '';
   const instagram = row.instagram ? '@' + String(row.instagram).replace(/^@+/, '') : '';
-  return [phone, instagram].filter(Boolean).join(' · ');
+  const email = row.email || '';
+  return [phone, instagram, email].filter(Boolean).join(' · ');
 }
 
 function renderBookings() {

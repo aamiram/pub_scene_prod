@@ -262,17 +262,18 @@ function listAdminUsers() {
 function saveOrGetUser(userData) {
   return new Promise((resolve, reject) => {
     try {
-      const { fullName, phone, instagram, age } = userData;
+      const { fullName, phone, instagram, age, email } = userData;
       const phoneKey = phone || ('ig:' + String(instagram || '').toLowerCase());
       const upsert = db.prepare(`
-        INSERT INTO users (full_name, phone, instagram, age)
-        VALUES (?, ?, ?, ?)
+        INSERT INTO users (full_name, phone, email, instagram, age)
+        VALUES (?, ?, ?, ?, ?)
         ON CONFLICT(phone) DO UPDATE SET
           full_name = excluded.full_name,
+          email = excluded.email,
           instagram = excluded.instagram,
           age = excluded.age
       `);
-      upsert.run(fullName, phoneKey, instagram || null, age);
+      upsert.run(fullName, phoneKey, email || null, instagram || null, age);
       const user = db.prepare('SELECT id FROM users WHERE phone = ?').get(phoneKey);
       resolve(user.id);
     } catch (err) {
@@ -375,7 +376,7 @@ function listAdminBookings() {
   return db.prepare(`
     SELECT b.id, b.venue_name, b.couple_passes, b.stag_passes, b.total_amount,
            b.payment_status, b.pass_code, b.booking_date,
-           u.full_name, u.phone, u.instagram, u.age
+           u.full_name, u.phone, u.instagram, u.age, u.email
     FROM bookings b
     LEFT JOIN users u ON u.id = b.user_id
     ORDER BY b.booking_date DESC

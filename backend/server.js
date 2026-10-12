@@ -122,6 +122,7 @@ app.post('/api/create-pass-order', async (req, res) => {
     const fullName = String(user && user.fullName || '').trim();
     const phone = String(user && user.phone || '').replace(/\D/g, '');
     const instagram = String(user && user.instagram || '').trim().replace(/^@+/, '');
+    const email = String(user && user.email || '').trim();
     const age = parseInt(user && user.age, 10);
     if (!fullName) {
       return res.status(400).json({ error: 'Enter your name' });
@@ -138,6 +139,7 @@ app.post('/api/create-pass-order', async (req, res) => {
     user.fullName = fullName;
     user.phone = phone;
     user.instagram = instagram;
+    user.email = email;
     user.age = age;
     if (!booking || !booking.venueId) {
       return res.status(400).json({ error: 'Choose an event before booking a pass' });

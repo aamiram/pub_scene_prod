@@ -38,7 +38,7 @@ function openBookingModal(venueId) {
   setText('qty-couple', '1');
   setText('qty-stag', '0');
 
-  ['custName', 'custAge', 'custInstagram', 'custPhone'].forEach((id) => {
+  ['custName', 'custAge', 'custInstagram', 'custPhone', 'custEmail'].forEach((id) => {
     const field = document.getElementById(id);
     if (field) field.value = '';
   });
@@ -83,24 +83,24 @@ document.getElementById('confirmPassBtn')?.addEventListener('click', async () =>
 
   const fullName = document.getElementById('custName')?.value?.trim();
   const age = parseInt(document.getElementById('custAge')?.value, 10);
-  const instagram = (document.getElementById('custInstagram')?.value || '').trim().replace(/^@+/, '');
   const phone = (document.getElementById('custPhone')?.value || '').replace(/\D/g, '');
+  const instagram = (document.getElementById('custInstagram')?.value || '').trim().replace(/^@+/, '');
+  const email = (document.getElementById('custEmail')?.value || '').trim();
   const submitBtn = document.getElementById('confirmPassBtn');
 
   if (!fullName) {
-    alert('Enter your name.');
+    alert('Please enter your full name.');
+    document.getElementById('custName')?.focus();
     return;
   }
   if (!Number.isInteger(age) || age < 1 || age > 120) {
-    alert('Enter your age.');
+    alert('Please enter a valid age.');
+    document.getElementById('custAge')?.focus();
     return;
   }
-  if (phone && phone.length < 10) {
-    alert('Enter a valid mobile number, or leave it blank and add Instagram.');
-    return;
-  }
-  if (!phone && !instagram) {
-    alert('Add a mobile number or your Instagram.');
+  if (!phone || phone.length < 10) {
+    alert('Please enter a valid 10-digit mobile number.');
+    document.getElementById('custPhone')?.focus();
     return;
   }
   if (quantities.couple === 0 && quantities.stag === 0) {
@@ -109,7 +109,7 @@ document.getElementById('confirmPassBtn')?.addEventListener('click', async () =>
   }
 
   const payload = {
-    user: { fullName, phone, instagram, age },
+    user: { fullName, phone, instagram, age, email },
     booking: {
       venueId: activeBookingVenue.id,
       venueName: activeBookingVenue.name,
@@ -167,26 +167,35 @@ document.getElementById('confirmPassBtn')?.addEventListener('click', async () =>
       const codeNode = document.getElementById('qrPassCodeDisplay');
       if (codeNode) codeNode.textContent = `#${data.passCode || 'PUB-PASS'}`;
 
+      const summaryParts = [];
+      if (quantities.couple > 0) summaryParts.push(`Couple: ${quantities.couple}`);
+      if (quantities.stag > 0) summaryParts.push(`Stag: ${quantities.stag}`);
+      const passesSummary = summaryParts.join(', ') || '1 Pass';
+
       const summaryNode = document.getElementById('qrPassSummaryDisplay');
       if (summaryNode) {
-        const parts = [];
-        if (quantities.couple > 0) parts.push(`Couple: ${quantities.couple}`);
-        if (quantities.stag > 0) parts.push(`Stag: ${quantities.stag}`);
-        summaryNode.textContent = parts.join(', ') || '1 Pass';
+        summaryNode.textContent = passesSummary;
       }
 
-      // Pre-filled WhatsApp confirmation message
+      // Pre-filled WhatsApp confirmation message with full user info
       const eventName = data.venueName || activeBookingVenue.name;
-      const contactInfo = phone || instagram || 'Guest';
-      const passText = `Couple: ${quantities.couple}, Stag: ${quantities.stag}`;
+      const ageDisplay = age ? `${age} yrs` : 'N/A';
+      const phoneDisplay = phone || 'N/A';
+      const instaDisplay = instagram ? `@${instagram}` : 'Not provided';
+      const emailDisplay = email || 'Not provided';
 
       const waText = 
-        `Hi Pub Scene! I have completed payment for *${eventName}*.\n\n` +
-        `🎫 *Pass Code:* #${data.passCode}\n` +
-        `👤 *Name:* ${fullName}\n` +
-        `📱 *Contact:* ${contactInfo}\n` +
-        `👥 *Passes:* ${passText}\n\n` +
-        `I have attached my payment screenshot above. Please verify and send my tickets!`;
+        `*PUB SCENE - PASS PAYMENT & CONFIRMATION*\n\n` +
+        `*Event:* ${eventName}\n` +
+        `*Pass Code:* #${data.passCode}\n\n` +
+        `*GUEST DETAILS:*\n` +
+        `• *Name:* ${fullName}\n` +
+        `• *Age:* ${ageDisplay}\n` +
+        `• *Mobile:* ${phoneDisplay}\n` +
+        `• *Instagram ID:* ${instaDisplay}\n` +
+        `• *Email:* ${emailDisplay}\n\n` +
+        `*PASSES:* ${passesSummary}\n\n` +
+        `I have completed payment on the PhonePe QR code and attached my payment screenshot above. Please verify and send my tickets!`;
 
       const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waText)}`;
       const waBtn = document.getElementById('whatsappRedirectBtn');

@@ -448,14 +448,16 @@
         </button>
 
         <div id="guestDetails" class="hidden space-y-2 mt-4">
-          <p class="text-xs text-gray-400">Name and age, plus a mobile number or Instagram.</p>
-          <input type="text" id="custName" placeholder="Full name" autocomplete="name"
+          <p class="text-xs text-gray-400">Enter your details for entry pass verification & tickets.</p>
+          <input type="text" id="custName" placeholder="Full name *" autocomplete="name" required
                  class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-3 text-base text-white focus:outline-none focus:border-[#00f0ff]" />
-          <input type="number" id="custAge" inputmode="numeric" min="1" max="120" placeholder="Age"
+          <input type="number" id="custAge" inputmode="numeric" min="1" max="120" placeholder="Age (e.g. 23) *" required
                  class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-3 text-base text-white focus:outline-none focus:border-[#00f0ff]" />
-          <input type="text" id="custInstagram" placeholder="Instagram username" autocomplete="off"
+          <input type="tel" id="custPhone" placeholder="Mobile number (10 digits) *" autocomplete="tel" required
                  class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-3 text-base text-white focus:outline-none focus:border-[#00f0ff]" />
-          <input type="tel" id="custPhone" placeholder="Mobile number (10 digits)" autocomplete="tel"
+          <input type="text" id="custInstagram" placeholder="Instagram ID (e.g. @yourhandle)" autocomplete="off"
+                 class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-3 text-base text-white focus:outline-none focus:border-[#00f0ff]" />
+          <input type="email" id="custEmail" placeholder="Email address (optional)" autocomplete="email"
                  class="w-full bg-[#18152e] border border-purple-800/40 rounded px-3 py-3 text-base text-white focus:outline-none focus:border-[#00f0ff]" />
           <button type="button" id="confirmPassBtn" class="tap w-full btn-neon-primary py-3.5 rounded-xl text-sm uppercase font-extrabold flex items-center justify-center gap-2">
             <i class="fa-solid fa-shield-halved text-xs"></i>
