@@ -1,3 +1,15 @@
+window.handleHeroBookPasses = function(e) {
+  if (e && e.preventDefault) e.preventDefault();
+  if (typeof openBookingModal === 'function' && Array.isArray(window.currentEventsList) && window.currentEventsList.length > 0) {
+    openBookingModal(window.currentEventsList[0].id);
+    return;
+  }
+  const eventsSec = document.getElementById('events');
+  if (eventsSec) {
+    eventsSec.scrollIntoView({ behavior: 'smooth' });
+  }
+};
+
 let activeCategory = 'all';
 let activeArea = 'all';
 let searchQuery = '';
@@ -42,10 +54,15 @@ function renderEvents(items) {
     return;
   }
 
+  window.currentEventsList = items;
   const hero = document.getElementById('heroFlyer');
+  const heroTitle = document.getElementById('heroFlyerTitle');
   if (hero && items[0] && items[0].image) {
     hero.src = items[0].image;
     hero.alt = items[0].name || 'Event flyer';
+  }
+  if (heroTitle && items[0] && items[0].name) {
+    heroTitle.textContent = items[0].name;
   }
 
   const today = new Date().toISOString().split('T')[0];

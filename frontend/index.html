@@ -215,7 +215,7 @@
         <div class="grid grid-cols-2 gap-2 text-xs font-semibold">
           <a href="#events" class="mobile-nav-link flex items-center gap-2.5 bg-[#141228] p-3 rounded-xl text-white hover:bg-[#1f1b3b] border border-[#2b274c]">
             <i class="fa-solid fa-ticket text-[#00f0ff] text-sm"></i>
-            <span>Browse Events</span>
+            <span>Book Passes</span>
           </a>
           <a href="#venues" class="mobile-nav-link flex items-center gap-2.5 bg-[#141228] p-3 rounded-xl text-white hover:bg-[#1f1b3b] border border-[#2b274c]">
             <i class="fa-solid fa-location-dot text-[#ff007f] text-sm"></i>
@@ -249,43 +249,43 @@
 
     <!-- 2. HERO CAROUSEL -->
     <section class="max-w-7xl mx-auto px-4 lg:px-8 pt-4 sm:pt-6 pb-2">
-      <div class="relative bg-gradient-to-r from-[#120d2b] via-[#0d091e] to-[#0a1424] border border-cyan-500/20 rounded-2xl p-5 sm:p-8 md:p-10 overflow-hidden shadow-[0_0_30px_rgba(0,240,255,0.08)]">
-        <div class="grid md:grid-cols-[1.3fr_0.7fr] gap-6 items-center relative z-10">
-          <div>
-            <div class="flex flex-wrap items-center gap-2 mb-3">
-              <span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#00f0ff] bg-[#00f0ff]/10 border border-[#00f0ff]/30 px-3 py-1 rounded-full">
-                <i class="fa-solid fa-fire text-[10px] text-[#ff007f]"></i> Nagpur's #1 Nightlife
-              </span>
-              <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-gray-300 bg-white/5 border border-white/10 px-2.5 py-1 rounded-full">
-                <i class="fa-solid fa-bolt text-yellow-400 text-[10px]"></i> Instant Pass
-              </span>
-            </div>
-            
-            <h1 class="text-xl sm:text-3xl md:text-4xl font-extrabold text-white leading-tight">
-              See who’s going before you book
-            </h1>
-            <p class="text-xs sm:text-sm text-gray-300 mt-2 mb-4 leading-relaxed max-w-xl">
-              Spot the party scene, discover crowd ratios, and grab instant digital QR entry passes for the hottest clubs in Nagpur.
-            </p>
+      <div class="relative bg-gradient-to-r from-[#120d2b] via-[#0d091e] to-[#0a1424] border border-cyan-500/20 rounded-2xl p-4 sm:p-6 md:p-8 overflow-hidden shadow-[0_0_30px_rgba(0,240,255,0.08)]">
+        <div class="flex flex-col items-center text-center relative z-10">
+          
+          <div class="flex items-center gap-2 mb-2">
+            <span class="inline-flex items-center gap-1.5 text-[11px] font-bold text-[#00f0ff] bg-[#00f0ff]/10 border border-[#00f0ff]/30 px-3 py-1 rounded-full">
+              <i class="fa-solid fa-fire text-[10px] text-[#ff007f]"></i> Nagpur's #1 Nightlife
+            </span>
+            <span class="inline-flex items-center gap-1.5 text-[11px] font-semibold text-gray-300 bg-white/5 border border-white/10 px-2.5 py-1 rounded-full">
+              <i class="fa-solid fa-bolt text-yellow-400 text-[10px]"></i> Instant Pass
+            </span>
+          </div>
 
-            <!-- Quick Action Jump Chips for Mobile & Desktop -->
-            <div class="flex flex-wrap items-center gap-2.5">
-              <a href="#events" class="tap inline-flex items-center gap-2 btn-neon-primary px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-bold">
-                <i class="fa-solid fa-ticket text-xs"></i>
-                <span>Browse Events</span>
-                <i class="fa-solid fa-arrow-right text-[10px]"></i>
-              </a>
-              <a href="#venues" class="tap inline-flex items-center gap-2 bg-[#141228] hover:bg-[#1e1b38] text-white border border-[#2b274c] hover:border-[#00f0ff] px-4 py-2 sm:px-5 sm:py-2.5 rounded-xl text-xs sm:text-sm font-semibold transition-colors">
-                <i class="fa-solid fa-location-dot text-[#ff007f] text-xs"></i>
-                <span>10 Venues in City</span>
-              </a>
+          <h1 class="text-2xl sm:text-3xl md:text-4xl font-black text-white leading-tight mb-4 tracking-tight">
+            The Best Upcoming Events
+          </h1>
+
+          <!-- Featured Event Flyer -->
+          <div class="w-full flex justify-center mt-1">
+            <div class="relative w-full max-w-[320px] sm:max-w-[340px] md:max-w-sm rounded-2xl overflow-hidden border-2 border-[#00f0ff]/40 shadow-[0_0_35px_rgba(0,240,255,0.25)] group cursor-pointer active:scale-95 transition-all" onclick="handleHeroBookPasses(event)">
+              <img id="heroFlyer" src="/assets/flyers/evt-mv676lgr.png" alt="Featured event flyer" class="w-full aspect-[4/5] object-cover group-hover:scale-105 transition-transform duration-500" />
+              <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/20 flex flex-col justify-between p-3.5">
+                <span class="self-start bg-[#ff007f]/90 backdrop-blur-md text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
+                  <i class="fa-solid fa-fire text-yellow-300"></i> Featured Event
+                </span>
+                <div class="bg-[#0b081b]/90 backdrop-blur-md rounded-xl p-2.5 border border-[#00f0ff]/30 flex items-center justify-between text-xs shadow-lg">
+                  <div class="truncate mr-2 text-left">
+                    <p id="heroFlyerTitle" class="text-white font-bold truncate text-xs">The Haunt | Halloween party</p>
+                    <p class="text-[10px] text-gray-400 truncate">Tap to book entry passes</p>
+                  </div>
+                  <span class="bg-[#00f0ff] text-black font-extrabold px-3 py-1.5 rounded-lg text-[10px] uppercase shrink-0 flex items-center gap-1 shadow-[0_0_12px_rgba(0,240,255,0.5)]">
+                    Book <i class="fa-solid fa-arrow-right text-[8px]"></i>
+                  </span>
+                </div>
+              </div>
             </div>
           </div>
 
-          <!-- Hero Featured Flyer (Hidden on small mobile to maximize screen real estate, visible on tablets/desktops) -->
-          <div class="hidden sm:flex justify-center">
-            <img id="heroFlyer" src="assets/flyers/city-showdown.jpg" alt="Featured event flyer" class="w-full max-w-[240px] md:max-w-xs rounded-xl border border-white/10 shadow-[0_0_25px_rgba(0,240,255,0.2)] object-cover aspect-[4/5]" />
-          </div>
         </div>
       </div>
     </section>
