@@ -265,24 +265,24 @@
             The Best Upcoming Events
           </h1>
 
-          <!-- Featured Event Flyer -->
-          <div class="w-full flex justify-center mt-1">
-            <div class="relative w-full max-w-[320px] sm:max-w-[340px] md:max-w-sm rounded-2xl overflow-hidden border-2 border-[#00f0ff]/40 shadow-[0_0_35px_rgba(0,240,255,0.25)] group cursor-pointer active:scale-95 transition-all" onclick="handleHeroBookPasses(event)">
-              <img id="heroFlyer" src="/assets/flyers/evt-mv676lgr.png" alt="Featured event flyer" class="w-full aspect-[4/5] object-cover group-hover:scale-105 transition-transform duration-500" />
-              <div class="absolute inset-0 bg-gradient-to-t from-black/85 via-transparent to-black/20 flex flex-col justify-between p-3.5">
-                <span class="self-start bg-[#ff007f]/90 backdrop-blur-md text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
-                  <i class="fa-solid fa-fire text-yellow-300"></i> Featured Event
-                </span>
-                <div class="bg-[#0b081b]/90 backdrop-blur-md rounded-xl p-2.5 border border-[#00f0ff]/30 flex items-center justify-between text-xs shadow-lg">
-                  <div class="truncate mr-2 text-left">
-                    <p id="heroFlyerTitle" class="text-white font-bold truncate text-xs">The Haunt | Halloween party</p>
-                    <p class="text-[10px] text-gray-400 truncate">Tap to book entry passes</p>
-                  </div>
-                  <span class="bg-[#00f0ff] text-black font-extrabold px-3 py-1.5 rounded-lg text-[10px] uppercase shrink-0 flex items-center gap-1 shadow-[0_0_12px_rgba(0,240,255,0.5)]">
-                    Book <i class="fa-solid fa-arrow-right text-[8px]"></i>
-                  </span>
-                </div>
+          <!-- Featured Event Flyer (100% Fully Visible with No Overlapping Overlays) -->
+          <div class="w-full flex flex-col items-center justify-center mt-1">
+            <div class="relative w-full max-w-[320px] sm:max-w-[340px] md:max-w-sm rounded-2xl overflow-hidden border-2 border-[#00f0ff]/40 shadow-[0_0_35px_rgba(0,240,255,0.25)] group cursor-pointer active:scale-95 transition-all bg-[#070611]" onclick="handleHeroBookPasses(event)">
+              <img id="heroFlyer" src="/assets/flyers/evt-mv676lgr.png" alt="Featured event flyer" class="w-full aspect-[4/5] object-contain group-hover:scale-102 transition-transform duration-500" />
+              <span class="absolute top-3 left-3 bg-[#ff007f]/90 backdrop-blur-md text-white text-[10px] font-black uppercase px-2.5 py-1 rounded-full shadow-md flex items-center gap-1">
+                <i class="fa-solid fa-fire text-yellow-300"></i> Featured Event
+              </span>
+            </div>
+            
+            <!-- Booking Bar positioned below flyer so it covers ZERO pixels of the flyer -->
+            <div class="w-full max-w-[320px] sm:max-w-[340px] md:max-w-sm flex items-center justify-between bg-[#120e2e] border border-[#00f0ff]/30 rounded-xl p-2.5 mt-2.5 shadow-lg cursor-pointer active:scale-95 transition-all" onclick="handleHeroBookPasses(event)">
+              <div class="truncate mr-2 text-left">
+                <p id="heroFlyerTitle" class="text-white font-bold truncate text-xs">The Haunt | Halloween party</p>
+                <p class="text-[10px] text-gray-400 truncate">Tap to book entry passes</p>
               </div>
+              <button type="button" onclick="handleHeroBookPasses(event)" class="bg-[#00f0ff] hover:bg-[#00d5e3] text-black font-extrabold px-3 py-1.5 rounded-lg text-[10px] uppercase shrink-0 flex items-center gap-1 shadow-[0_0_12px_rgba(0,240,255,0.5)] cursor-pointer">
+                Book Pass <i class="fa-solid fa-arrow-right text-[8px]"></i>
+              </button>
             </div>
           </div>
 

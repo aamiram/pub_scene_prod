@@ -48,7 +48,7 @@ function updateBookingTotalDisplay() {
 }
 
 function changeTicketQty(idx, delta) {
-  if (ticketQuantities[idx] == null) ticketQuantities[idx] = idx === 0 ? 1 : 0;
+  if (ticketQuantities[idx] == null) ticketQuantities[idx] = 0;
   ticketQuantities[idx] = Math.max(0, ticketQuantities[idx] + delta);
   const qtyNode = document.getElementById(`qty-ticket-${idx}`);
   if (qtyNode) qtyNode.textContent = String(ticketQuantities[idx]);
@@ -121,7 +121,7 @@ function openBookingModal(venueId) {
 
   ticketQuantities = {};
   activeTickets.forEach((_, idx) => {
-    ticketQuantities[idx] = idx === 0 ? 1 : 0;
+    ticketQuantities[idx] = 0;
   });
 
   const setText = (id, value) => {

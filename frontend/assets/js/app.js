@@ -72,9 +72,9 @@ function renderEvents(items) {
 
     return `
     <article class="bg-[#100e21] border border-[#2b274c] rounded-2xl overflow-hidden flex flex-col group hover:border-[#00f0ff]/60 transition-all duration-300 shadow-lg hover:shadow-[0_0_20px_rgba(0,240,255,0.15)]">
-      <div class="relative w-full aspect-[16/10] sm:aspect-[4/3] bg-black overflow-hidden">
-        <img src="${escapeHtml(event.image)}" alt="${escapeHtml(event.name)} flyer" class="w-full h-full object-cover group-hover:scale-105 transition-transform duration-500" loading="lazy" />
-        <div class="absolute inset-0 bg-gradient-to-t from-[#100e21] via-transparent to-black/40"></div>
+      <div class="relative w-full aspect-[4/5] bg-[#070611] overflow-hidden flex items-center justify-center border-b border-[#1e1c33]">
+        <img src="${escapeHtml(event.image)}" alt="${escapeHtml(event.name)} flyer" class="w-full h-full object-contain group-hover:scale-102 transition-transform duration-500" loading="lazy" />
+        <div class="absolute inset-x-0 top-0 h-14 bg-gradient-to-b from-black/75 to-transparent pointer-events-none"></div>
         
         <!-- Date Badge -->
         <span class="absolute top-3 left-3 bg-black/70 backdrop-blur-md text-[#00f0ff] border border-[#00f0ff]/30 text-[11px] font-bold px-2.5 py-1 rounded-full flex items-center gap-1 shadow-md">
