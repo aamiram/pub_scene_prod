@@ -1,7 +1,8 @@
-// Booking state for the pass modal with PhonePe QR & WhatsApp verification.
+// Booking state for the pass modal with PhonePe / UPI QR & 1-Click Copy & WhatsApp verification.
 let activeBookingVenue = null;
 let activeTickets = [];
 let ticketQuantities = {};
+let lastBookingAmount = 0;
 
 const API_BASE = window.location.protocol === 'file:' ? 'http://localhost:5000' : '';
 const WHATSAPP_NUMBER = '918855882926';
@@ -14,17 +15,95 @@ function escapeHtml(value) {
     .replace(/"/g, '&quot;');
 }
 
+function calculateTotalAmount() {
+  let total = 0;
+  activeTickets.forEach((t, idx) => {
+    const qty = Number(ticketQuantities[idx]) || 0;
+    const price = Number(t.price) || 0;
+    total += qty * price;
+  });
+  return total;
+}
+
+function updateBookingTotalDisplay() {
+  const total = calculateTotalAmount();
+  const formatted = `₹${total.toLocaleString('en-IN')}`;
+  
+  // Running total in booking form
+  const formTotalNode = document.getElementById('formRunningTotalDisplay');
+  if (formTotalNode) formTotalNode.textContent = formatted;
+
+  // Amount displays in QR modal
+  const topAmountNode = document.getElementById('qrTotalAmountDisplay');
+  if (topAmountNode) topAmountNode.textContent = formatted;
+
+  const cardAmountNode = document.getElementById('qrCardAmountDisplay');
+  if (cardAmountNode) cardAmountNode.textContent = formatted;
+
+  const upiAmountNode = document.getElementById('upiAmountValue');
+  if (upiAmountNode) upiAmountNode.textContent = formatted;
+
+  const instructAmountNode = document.getElementById('instructAmountDisplay');
+  if (instructAmountNode) instructAmountNode.textContent = formatted;
+}
+
 function changeTicketQty(idx, delta) {
-  if (ticketQuantities[idx] == null) ticketQuantities[idx] = 0;
+  if (ticketQuantities[idx] == null) ticketQuantities[idx] = idx === 0 ? 1 : 0;
   ticketQuantities[idx] = Math.max(0, ticketQuantities[idx] + delta);
   const qtyNode = document.getElementById(`qty-ticket-${idx}`);
   if (qtyNode) qtyNode.textContent = String(ticketQuantities[idx]);
+  updateBookingTotalDisplay();
 }
 
 // For legacy inline changeQty calls
 function changeQty(type, delta) {
   if (type === 'couple') changeTicketQty(0, delta);
   else if (type === 'stag') changeTicketQty(1, delta);
+}
+
+// 1-Click Clipboard Copy Helpers
+function copyTextToClipboard(text, btnId, successMsg) {
+  if (navigator.clipboard && navigator.clipboard.writeText) {
+    navigator.clipboard.writeText(text).then(() => {
+      showCopySuccess(btnId, successMsg);
+    }).catch(() => {
+      fallbackCopy(text, btnId, successMsg);
+    });
+  } else {
+    fallbackCopy(text, btnId, successMsg);
+  }
+}
+
+function fallbackCopy(text, btnId, successMsg) {
+  const temp = document.createElement('input');
+  temp.value = text;
+  document.body.appendChild(temp);
+  temp.select();
+  try {
+    document.execCommand('copy');
+    showCopySuccess(btnId, successMsg);
+  } catch (e) {
+    alert('Copy failed. Please manually copy: ' + text);
+  }
+  document.body.removeChild(temp);
+}
+
+function showCopySuccess(btnId, successMsg) {
+  const btn = document.getElementById(btnId);
+  if (!btn) return;
+  const original = btn.innerHTML;
+  btn.innerHTML = `<i class="fa-solid fa-check text-green-400"></i><span class="text-green-400 font-bold">${successMsg || 'Copied!'}</span>`;
+  setTimeout(() => {
+    btn.innerHTML = original;
+  }, 2000);
+}
+
+function copyUpiId() {
+  // UPI ID copy disabled for security; payment completed via QR screenshot
+}
+
+function copyUpiAmount() {
+  // Amount copy disabled
 }
 
 function openBookingModal(venueId) {
@@ -63,7 +142,7 @@ function openBookingModal(venueId) {
         <div class="pr-2 flex-1">
           <div class="flex items-center gap-1.5 flex-wrap">
             <p class="text-xs text-white font-semibold">${escapeHtml(t.name)}</p>
-            <span class="text-[11px] font-bold text-[#00f0ff]">₹${Number(t.price || 0)}</span>
+            <span class="text-[11px] font-bold text-[#00f0ff]">₹${Number(t.price || 0).toLocaleString('en-IN')}</span>
           </div>
           ${t.desc ? `<p class="text-[10px] text-gray-400 mt-0.5">${escapeHtml(t.desc)}</p>` : ''}
         </div>
@@ -75,6 +154,9 @@ function openBookingModal(venueId) {
       </div>
     `).join('');
   }
+
+  // Update initial running total
+  updateBookingTotalDisplay();
 
   ['custName', 'custAge', 'custInstagram', 'custPhone', 'custEmail'].forEach((id) => {
     const field = document.getElementById(id);
@@ -150,13 +232,18 @@ document.getElementById('confirmPassBtn')?.addEventListener('click', async () =>
   }
 
   const summaryParts = [];
+  let calculatedAmount = 0;
   activeTickets.forEach((t, idx) => {
     const q = ticketQuantities[idx] || 0;
+    const price = Number(t.price) || 0;
     if (q > 0) {
       summaryParts.push(`${t.name}: ${q}`);
+      calculatedAmount += q * price;
     }
   });
   const passesSummary = summaryParts.join(', ') || '1 Pass';
+  const totalAmount = calculatedAmount;
+  lastBookingAmount = totalAmount;
 
   const payload = {
     user: { fullName, phone, instagram, age, email },
@@ -166,6 +253,7 @@ document.getElementById('confirmPassBtn')?.addEventListener('click', async () =>
       totalPasses,
       couplePasses: ticketQuantities[0] || 0,
       stagPasses: ticketQuantities[1] || 0,
+      totalAmount,
       passesSummary
     }
   };
@@ -179,17 +267,17 @@ document.getElementById('confirmPassBtn')?.addEventListener('click', async () =>
   const subNode = document.getElementById('genStatusSubtitle');
   const progressNode = document.getElementById('genProgressBar');
 
-  if (titleNode) titleNode.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-[#00f0ff] text-sm mr-2"></i><span>Generating QR for Secure Pay...</span>';
-  if (subNode) subNode.textContent = 'Securing UPI payment session...';
+  if (titleNode) titleNode.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin text-[#00f0ff] text-sm mr-2"></i><span>Preparing Payment Session...</span>';
+  if (subNode) subNode.textContent = `Securing order for ₹${totalAmount.toLocaleString('en-IN')}...`;
   if (progressNode) progressNode.style.width = '25%';
 
   const animStep1 = setTimeout(() => {
-    if (subNode) subNode.textContent = 'Allocating pass code and venue reservation...';
+    if (subNode) subNode.textContent = 'Allocating pass code and securing venue reservation...';
     if (progressNode) progressNode.style.width = '65%';
   }, 500);
 
   const animStep2 = setTimeout(() => {
-    if (subNode) subNode.textContent = 'Binding PhonePe merchant QR for secure pay...';
+    if (subNode) subNode.textContent = 'Preparing PhonePe QR code and merchant details...';
     if (progressNode) progressNode.style.width = '90%';
   }, 1100);
 
@@ -205,9 +293,9 @@ document.getElementById('confirmPassBtn')?.addEventListener('click', async () =>
     const data = await res.json().catch(() => ({}));
     if (!res.ok) throw new Error(data.error || 'Server error occurred');
 
-    // Ensure futuristic generation animation displays for at least 1.6s
+    // Ensure animation displays smoothly
     const elapsed = Date.now() - startTime;
-    const remainingDelay = Math.max(0, 1600 - elapsed);
+    const remainingDelay = Math.max(0, 1400 - elapsed);
     if (progressNode) progressNode.style.width = '100%';
 
     setTimeout(() => {
@@ -215,26 +303,47 @@ document.getElementById('confirmPassBtn')?.addEventListener('click', async () =>
       document.getElementById('modalGeneratingQR')?.classList.add('hidden');
       document.getElementById('modalPaymentQR')?.classList.remove('hidden');
 
-      // Populate Pass Code and Summary
+      const passCode = data.passCode || 'PUB-PASS';
+      const formattedAmount = `₹${totalAmount.toLocaleString('en-IN')}`;
+
+      // 1. Populate Pass Code and Summary
       const codeNode = document.getElementById('qrPassCodeDisplay');
-      if (codeNode) codeNode.textContent = `#${data.passCode || 'PUB-PASS'}`;
+      if (codeNode) codeNode.textContent = `#${passCode}`;
 
       const summaryNode = document.getElementById('qrPassSummaryDisplay');
-      if (summaryNode) {
-        summaryNode.textContent = passesSummary;
+      if (summaryNode) summaryNode.textContent = passesSummary;
+
+      // 2. Display Total Amount Prominently on Top of QR and in all badges
+      const topAmountNode = document.getElementById('qrTotalAmountDisplay');
+      if (topAmountNode) topAmountNode.textContent = formattedAmount;
+
+      const cardAmountNode = document.getElementById('qrCardAmountDisplay');
+      if (cardAmountNode) cardAmountNode.textContent = formattedAmount;
+
+      const upiAmountNode = document.getElementById('upiAmountValue');
+      if (upiAmountNode) upiAmountNode.textContent = formattedAmount;
+
+      const instructAmountNode = document.getElementById('instructAmountDisplay');
+      if (instructAmountNode) instructAmountNode.textContent = formattedAmount;
+
+      // 3. Ensure official QR code is loaded
+      const qrImg = document.getElementById('dynamicPaymentQrImg');
+      if (qrImg) {
+        qrImg.src = 'assets/images/payment-qr.png';
       }
 
-      // Pre-filled WhatsApp confirmation message with full user info
+      // 4. Pre-filled WhatsApp confirmation message with full user info & total amount
       const eventName = data.venueName || activeBookingVenue.name;
       const ageDisplay = age ? `${age} yrs` : 'N/A';
       const phoneDisplay = phone || 'N/A';
       const instaDisplay = instagram ? `@${instagram}` : 'Not provided';
       const emailDisplay = email || 'Not provided';
 
-      const waText = 
+            const waText = 
         `*PUB SCENE - PASS PAYMENT & CONFIRMATION*\n\n` +
         `*Event:* ${eventName}\n` +
-        `*Pass Code:* #${data.passCode}\n\n` +
+        `*Pass Code:* #${passCode}\n` +
+        `*Total Amount:* ${formattedAmount}\n\n` +
         `*GUEST DETAILS:*\n` +
         `• *Name:* ${fullName}\n` +
         `• *Age:* ${ageDisplay}\n` +
@@ -242,7 +351,7 @@ document.getElementById('confirmPassBtn')?.addEventListener('click', async () =>
         `• *Instagram ID:* ${instaDisplay}\n` +
         `• *Email:* ${emailDisplay}\n\n` +
         `*PASSES:* ${passesSummary}\n\n` +
-        `I have completed payment on the PhonePe QR code and attached my payment screenshot above. Please verify and send my tickets!`;
+        `I have completed payment of ${formattedAmount} via QR code and attached my payment screenshot above. Please verify and send my tickets!`;
 
       const waUrl = `https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(waText)}`;
       const waBtn = document.getElementById('whatsappRedirectBtn');

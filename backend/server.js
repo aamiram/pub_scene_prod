@@ -27,8 +27,12 @@ const {
   listCollabLeads,
   createAdminSession,
   getAdminSession,
-  deleteAdminSession
+  deleteAdminSession,
+  getBookingByPassCode,
+  checkInPass
 } = require('./database');
+
+const { generateTicketPdf } = require('./ticketGenerator');
 
 const app = express();
 app.set('trust proxy', 1);
@@ -168,13 +172,15 @@ app.post('/api/create-pass-order', async (req, res) => {
     const passCode = 'PUB-' + Math.floor(100000 + Math.random() * 900000);
     const passesSummary = String(booking.passesSummary || '').trim() || (couplePasses > 0 || stagPasses > 0 ? `Couple: ${couplePasses}, Stag: ${stagPasses}` : '1 Pass');
 
+    const totalAmount = Math.max(0, parseInt(booking.totalAmount, 10) || 0);
+
     const savedPass = await createBooking({
       userId,
       venueId: event.id,
       venueName: event.name,
       couplePasses,
       stagPasses,
-      totalAmount: 0,
+      totalAmount,
       razorpayOrderId: null,
       passCode,
       status: 'CONFIRMED',
@@ -185,6 +191,7 @@ app.post('/api/create-pass-order', async (req, res) => {
       success: true,
       passCode: savedPass.passCode,
       venueName: event.name,
+      totalAmount,
       message: 'Digital entry pass confirmed successfully'
     });
   } catch (err) {
@@ -444,6 +451,113 @@ app.get('/api/admin/users', requireAdmin, (_req, res) => {
   } catch (err) {
     console.error('Admin users error:', err);
     res.status(500).json({ error: 'Could not load users' });
+  }
+});
+
+// --- VENUE CHECKER & TICKET ENDPOINTS ---
+
+// 1. Venue Checker Staff Login (User: check_ve | Pass: work_01)
+app.post('/api/venue-checker/login', (req, res) => {
+  try {
+    const { userId, password } = req.body || {};
+    if (String(userId || '').trim() === 'check_ve' && String(password || '').trim() === 'work_01') {
+      return res.status(200).json({
+        success: true,
+        message: 'Venue Checker Authorized',
+        user: 'check_ve'
+      });
+    }
+    return res.status(401).json({ success: false, error: 'Invalid User ID or Password' });
+  } catch (err) {
+    return res.status(500).json({ success: false, error: 'Server error' });
+  }
+});
+
+// 2. Download / View PDF Ticket
+app.get('/api/ticket/:passCode/pdf', async (req, res) => {
+  try {
+    const { passCode } = req.params;
+    const booking = getBookingByPassCode(passCode);
+    if (!booking) {
+      return res.status(404).send('Ticket pass code not found.');
+    }
+
+    const event = booking.venue_id ? getEventById(booking.venue_id) : null;
+    const eventTitle = booking.venue_name || (event ? event.name : 'PUB SCENE Exclusive Event');
+    const eventVenue = (event ? event.venue_name : '') || booking.venue_name || 'Nagpur';
+    const eventDate = (event ? event.event_date : '') || 'Tonight • 8:00 PM Onwards';
+
+    const pdfBuffer = await generateTicketPdf({
+      passCode: booking.pass_code,
+      eventTitle,
+      eventVenue,
+      eventDate,
+      guestName: booking.full_name || 'Guest',
+      guestPhone: booking.phone || '',
+      guestAge: booking.age ? `${booking.age}` : '21+',
+      guestEmail: booking.email || '',
+      passesSummary: booking.passes_summary || (booking.couple_passes > 0 ? `Couple Pass: ${booking.couple_passes}` : '1 Pass'),
+      totalAmount: booking.total_amount || 0
+    });
+
+    res.setHeader('Content-Type', 'application/pdf');
+    const isDownload = req.query.download === '1' || req.query.download === 'true';
+    res.setHeader('Content-Disposition', `${isDownload ? 'attachment' : 'inline'}; filename="PUB_SCENE_Pass_${booking.pass_code}.pdf"`);
+    res.setHeader('Cache-Control', 'no-cache');
+    return res.send(pdfBuffer);
+  } catch (err) {
+    console.error('Error generating PDF ticket:', err);
+    return res.status(500).send('Error generating ticket PDF');
+  }
+});
+
+// 3. Security Gate Check-In & Anti-Fraud Scanner Endpoint
+app.post('/api/scanner/verify', (req, res) => {
+  try {
+    const { passCode, guardName, selectedVenue } = req.body || {};
+
+    if (!passCode) {
+      return res.status(400).json({ success: false, error: 'No pass code provided' });
+    }
+
+    const result = checkInPass(passCode, guardName || 'Gate Security', selectedVenue || 'ALL');
+    if (!result.success) {
+      if (result.status === 'ALREADY_CHECKED_IN') {
+        return res.status(409).json({
+          success: false,
+          status: 'ALREADY_CHECKED_IN',
+          message: result.message,
+          booking: result.booking
+        });
+      }
+      return res.status(404).json({
+        success: false,
+        status: 'NOT_FOUND',
+        error: result.error
+      });
+    }
+
+    return res.status(200).json({
+      success: true,
+      status: 'ADMITTED',
+      message: result.message,
+      venueWarning: result.venueWarning,
+      booking: result.booking
+    });
+  } catch (err) {
+    console.error('Scanner verification error:', err);
+    return res.status(500).json({ success: false, error: 'Check-in failed' });
+  }
+});
+
+// 4. Scanner Stats
+app.get('/api/scanner/stats', (req, res) => {
+  try {
+    const total = db.prepare('SELECT COUNT(*) as cnt FROM bookings').get().cnt;
+    const checkedIn = db.prepare('SELECT COUNT(*) as cnt FROM bookings WHERE checked_in = 1').get().cnt;
+    return res.status(200).json({ total, checkedIn });
+  } catch (err) {
+    return res.status(500).json({ error: 'Error fetching stats' });
   }
 });
 
