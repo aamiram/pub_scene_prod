@@ -139,6 +139,7 @@ function renderBookings() {
                   ${rawPhone ? `<a href="tel:${rawPhone}" class="quick-contact-btn btn-tel"><i class="fa-solid fa-phone"></i> ${escapeHtml(phoneDisplay)}</a>` : ''}
                   ${rawPhone ? `<a href="https://wa.me/91${rawPhone}" target="_blank" class="quick-contact-btn btn-wa"><i class="fa-brands fa-whatsapp"></i> Chat</a>` : ''}
                   ${rawIg ? `<a href="https://instagram.com/${rawIg}" target="_blank" class="quick-contact-btn btn-ig"><i class="fa-brands fa-instagram"></i> ${escapeHtml(igDisplay)}</a>` : ''}
+                  ${row.pass_code ? `<a href="/api/ticket/${encodeURIComponent(row.pass_code)}/pdf" download="PUB_SCENE_Pass_${escapeHtml(row.pass_code)}.pdf" target="_blank" class="quick-contact-btn" style="background:#00f0ff; color:#000; font-weight:700;"><i class="fa-solid fa-file-pdf"></i> PDF Ticket</a>` : ''}
                 </div>
               </td>
               <td>${escapeHtml(row.venue_name || '')}</td>
@@ -174,6 +175,7 @@ function renderBookings() {
             ${rawPhone ? `<a href="tel:${rawPhone}" class="quick-contact-btn btn-tel"><i class="fa-solid fa-phone"></i> Call</a>` : ''}
             ${rawPhone ? `<a href="https://wa.me/91${rawPhone}" target="_blank" class="quick-contact-btn btn-wa"><i class="fa-brands fa-whatsapp"></i> WhatsApp</a>` : ''}
             ${rawIg ? `<a href="https://instagram.com/${rawIg}" target="_blank" class="quick-contact-btn btn-ig"><i class="fa-brands fa-instagram"></i> ${escapeHtml(igDisplay)}</a>` : ''}
+            ${row.pass_code ? `<a href="/api/ticket/${encodeURIComponent(row.pass_code)}/pdf" download="PUB_SCENE_Pass_${escapeHtml(row.pass_code)}.pdf" target="_blank" class="quick-contact-btn" style="background:#00f0ff; color:#000; font-weight:700;"><i class="fa-solid fa-file-pdf"></i> PDF Ticket</a>` : ''}
           </div>
         </div>
       `).join('')}

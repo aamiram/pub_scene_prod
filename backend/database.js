@@ -126,6 +126,15 @@ const bookingColumns = db.prepare('PRAGMA table_info(bookings)').all().map((colu
 if (!bookingColumns.includes('passes_summary')) {
   db.exec('ALTER TABLE bookings ADD COLUMN passes_summary TEXT');
 }
+if (!bookingColumns.includes('checked_in')) {
+  db.exec('ALTER TABLE bookings ADD COLUMN checked_in INTEGER DEFAULT 0');
+}
+if (!bookingColumns.includes('checked_in_at')) {
+  db.exec('ALTER TABLE bookings ADD COLUMN checked_in_at TEXT DEFAULT NULL');
+}
+if (!bookingColumns.includes('checked_in_by')) {
+  db.exec('ALTER TABLE bookings ADD COLUMN checked_in_by TEXT DEFAULT NULL');
+}
 
 db.exec(`
   CREATE TABLE IF NOT EXISTS admin_sessions (
@@ -482,6 +491,64 @@ function deleteEvent(id) {
   return db.prepare('DELETE FROM events WHERE id = ?').run(id).changes;
 }
 
+function getBookingByPassCode(passCode) {
+  if (!passCode) return null;
+  const cleaned = String(passCode).trim().replace(/^#+/, '').replace(/^PUBSCENE:/i, '').trim().toUpperCase();
+  const row = db.prepare(`
+    SELECT b.*, 
+           u.full_name, u.phone, u.instagram, u.age, u.email,
+           e.name as event_title, e.venue_name as event_venue, e.event_date, e.image as event_image
+    FROM bookings b
+    LEFT JOIN users u ON u.id = b.user_id
+    LEFT JOIN events e ON e.id = b.venue_id
+    WHERE UPPER(b.pass_code) = ?
+  `).get(cleaned);
+  return row || null;
+}
+
+function checkInPass(passCode, guardName = 'Guard', selectedVenue = 'ALL') {
+  if (!passCode) return { success: false, status: 'INVALID', error: 'Pass code is required' };
+  const cleaned = String(passCode).trim().replace(/^#+/, '').replace(/^PUBSCENE:/i, '').trim().toUpperCase();
+  const booking = getBookingByPassCode(cleaned);
+  if (!booking) {
+    return { success: false, status: 'NOT_FOUND', error: `Pass Code #${cleaned} was not found in the system.` };
+  }
+
+  // Check if ticket is already checked in
+  if (booking.checked_in === 1) {
+    return {
+      success: false,
+      status: 'ALREADY_CHECKED_IN',
+      message: `Already scanned & checked in at ${booking.checked_in_at || 'earlier'} by ${booking.checked_in_by || 'Security'}! Duplicate entry rejected.`,
+      booking
+    };
+  }
+
+  // Check venue mismatch (optional warning)
+  let venueWarning = null;
+  const bookingVenue = (booking.venue_name || booking.event_title || '').toLowerCase();
+  const currentVenue = (selectedVenue || '').toLowerCase();
+  if (selectedVenue && selectedVenue !== 'ALL' && !bookingVenue.includes(currentVenue) && !currentVenue.includes(bookingVenue)) {
+    venueWarning = `Note: This pass was booked for "${booking.venue_name}", not "${selectedVenue}".`;
+  }
+
+  const now = new Date().toLocaleString('en-IN', { timeZone: 'Asia/Kolkata', dateStyle: 'short', timeStyle: 'short' });
+  db.prepare(`
+    UPDATE bookings 
+    SET checked_in = 1, checked_in_at = ?, checked_in_by = ?
+    WHERE id = ?
+  `).run(now, guardName, booking.id);
+
+  const updatedBooking = getBookingByPassCode(cleaned);
+  return {
+    success: true,
+    status: 'ADMITTED',
+    message: 'Pass Verified Successfully • Admitted!',
+    venueWarning,
+    booking: updatedBooking
+  };
+}
+
 function listAdminBookings() {
   return db.prepare(`
     SELECT b.id, b.venue_name, b.couple_passes, b.stag_passes, b.total_amount,
@@ -567,5 +634,7 @@ module.exports = {
   listCollabLeads,
   createAdminSession,
   getAdminSession,
-  deleteAdminSession
+  deleteAdminSession,
+  getBookingByPassCode,
+  checkInPass
 };
